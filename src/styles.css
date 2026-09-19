@@ -1006,6 +1006,14 @@ kbd {
 .cards-of td.ok-slow {
   color: var(--hard);
 }
+.test-answers td {
+  vertical-align: top;
+}
+.test-answers .test-skill {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
 
 .settings {
   width: min(440px, calc(100vw - 32px));

@@ -84,14 +84,48 @@ const summary = computed(() =>
   }),
 )
 
-const toLearn = computed(() =>
-  answers.value.flatMap((a) => {
-    const n = notesById.value.get(a.noteId)
-    const s = SKILLS.find((x) => x.key === a.skill)
-    if (!n || !s || levelOf(a) !== "unknown") return []
-    return [{key: `${a.noteId}:${a.skill}`, skill: s.label, prompt: display(n, s.given), answer: display(n, s.ask), text: a.text, verdict: a.verdict}]
-  }),
+const LEVELS: {key: Level; label: string}[] = [
+  {key: "unknown", label: "New"},
+  {key: "shaky", label: "Unsure"},
+  {key: "known", label: "Known"},
+]
+const LEVEL_LABEL = Object.fromEntries(LEVELS.map((l) => [l.key, l.label])) as Record<Level, string>
+
+const answerFilter = ref<Level | "all">("all")
+
+const answerRows = computed(() =>
+  answers.value
+    .flatMap((a, order) => {
+      const n = notesById.value.get(a.noteId)
+      const s = SKILLS.find((x) => x.key === a.skill)
+      if (!n || !s) return []
+      const level = levelOf(a)
+      return [
+        {
+          key: `${a.noteId}:${a.skill}`,
+          order,
+          skill: s.label,
+          prompt: display(n, s.given),
+          answer: display(n, s.ask),
+          text: a.text,
+          verdict: a.verdict,
+          ms: a.ms,
+          level,
+        },
+      ]
+    })
+    .sort((a, b) => LEVELS.findIndex((l) => l.key === a.level) - LEVELS.findIndex((l) => l.key === b.level) || a.order - b.order),
 )
+
+const levelCounts = computed(
+  () => Object.fromEntries(LEVELS.map((l) => [l.key, answerRows.value.filter((r) => r.level === l.key).length])) as Record<Level, number>,
+)
+const shownRows = computed(() => (answerFilter.value === "all" ? answerRows.value : answerRows.value.filter((r) => r.level === answerFilter.value)))
+
+function answerClass(row: {text: string | null; verdict: Verdict}): string {
+  if (row.text === null) return "muted"
+  return row.verdict === "right" ? "ok" : row.verdict === "close" ? "ok-slow" : "bad"
+}
 
 function focusInput() {
   nextTick(() => input.value?.focus({preventScroll: true}))
@@ -102,6 +136,7 @@ function start() {
   answers.value = []
   index.value = 0
   applied.value = null
+  answerFilter.value = "all"
   typed.value = ""
   other.value = null
   stage.value = "run"
@@ -327,18 +362,53 @@ onBeforeUnmount(() => {
           <button type="button" class="btn primary" @click="close">Start studying</button>
         </div>
 
-        <template v-if="toLearn.length">
-          <div class="detail-h">To learn · {{ toLearn.length }}</div>
-          <table class="cards-of">
-            <tbody>
-              <tr v-for="row in toLearn" :key="row.key">
-                <td class="muted">{{ row.skill }}</td>
-                <td>{{ row.prompt }} → {{ row.answer }}</td>
-                <td :class="row.text === null ? 'muted' : row.verdict === 'wrong' ? 'bad' : 'ok-slow'">{{ row.text ?? "don't know" }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </template>
+        <div class="detail-h">Your answers</div>
+        <div class="chips" role="group" aria-label="Filter answers">
+          <button
+            type="button"
+            class="chip"
+            :class="{on: answerFilter === 'all'}"
+            :aria-pressed="answerFilter === 'all'"
+            @click="answerFilter = 'all'"
+          >
+            All <b>{{ answerRows.length }}</b>
+          </button>
+          <button
+            v-for="l in LEVELS"
+            :key="l.key"
+            type="button"
+            class="chip"
+            :class="{on: answerFilter === l.key}"
+            :aria-pressed="answerFilter === l.key"
+            @click="answerFilter = l.key"
+          >
+            {{ l.label }} <b>{{ levelCounts[l.key] }}</b>
+          </button>
+        </div>
+        <table v-if="shownRows.length" class="cards-of test-answers">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Answer</th>
+              <th>You</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in shownRows" :key="row.key">
+              <td>
+                {{ row.prompt }}<span v-if="summary.length > 1" class="test-skill">{{ row.skill }}</span>
+              </td>
+              <td>{{ row.answer }}</td>
+              <td :class="answerClass(row)">{{ row.text ?? "don't know" }}</td>
+              <td>
+                <span class="lv" :class="row.level">{{ LEVEL_LABEL[row.level] }}</span>
+                <span class="test-skill">{{ (row.ms / 1000).toFixed(1) }} s</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p v-else class="muted">No answers here.</p>
       </section>
     </div>
   </div>
