@@ -80,7 +80,7 @@ body {
   overflow: hidden;
   background: var(--desk);
   color: var(--ink);
-  font: 15px/1.5 var(--ui);
+  font: 300 15px/1.5 var(--ui);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -88,6 +88,10 @@ button,
 input {
   font: inherit;
   color: inherit;
+}
+b,
+strong {
+  font-weight: 500;
 }
 :focus-visible {
   outline: 2px solid var(--easy);
@@ -144,7 +148,7 @@ input[type="radio"]:checked::before {
   transform: scale(1);
 }
 kbd {
-  font: 500 12px/1 var(--ui);
+  font: 400 12px/1 var(--ui);
   padding: 3px 6px;
   border: 1px solid var(--line);
   border-bottom-width: 2px;
@@ -315,16 +319,16 @@ kbd {
 }
 .meta span:first-child {
   color: var(--ink);
-  font-weight: 500;
+  font-weight: 400;
 }
 .prompt {
-  font: 600 min(96px, 12vh, 100cqi / (var(--len, 6) * 0.62)) / 1.05 var(--display);
+  font: 500 min(96px, 12vh, 100cqi / (var(--len, 6) * 0.62)) / 1.05 var(--display);
   letter-spacing: -0.02em;
   margin: 0;
   overflow-wrap: anywhere;
 }
 .sub {
-  font: italic 400 20px/1.3 var(--display);
+  font: italic 300 20px/1.3 var(--display);
   color: var(--muted);
   margin-top: 6px;
 }
@@ -335,7 +339,7 @@ kbd {
 .field input {
   display: block;
   width: 100%;
-  font: 500 clamp(22px, 3.6vh, 30px) / 1.2 var(--display);
+  font: 400 clamp(22px, 3.6vh, 30px) / 1.2 var(--display);
   padding: 6px 0;
   background: transparent;
   border: 0;
@@ -393,7 +397,7 @@ kbd {
   border-radius: 8px;
   background: var(--ink);
   color: var(--card);
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
 }
 .text-btn {
@@ -426,7 +430,7 @@ kbd {
   background: var(--card);
   cursor: pointer;
   text-align: left;
-  font: 500 22px/1.2 var(--display);
+  font: 400 22px/1.2 var(--display);
   touch-action: manipulation;
 }
 .opt span {
@@ -548,7 +552,7 @@ kbd {
 }
 .grade b {
   color: var(--c);
-  font-weight: 500;
+  font-weight: 400;
 }
 .grade small {
   color: var(--muted);
@@ -587,7 +591,7 @@ kbd {
 }
 .forms .w {
   display: block;
-  font: 500 20px/1.3 var(--display);
+  font: 400 20px/1.3 var(--display);
   overflow-wrap: anywhere;
 }
 .forms .cap {
@@ -606,7 +610,7 @@ kbd {
   padding: 48px 0;
 }
 .empty h2 {
-  font: 500 34px/1.2 var(--display);
+  font: 400 34px/1.2 var(--display);
   margin: 0 0 8px;
 }
 .empty p {
@@ -641,7 +645,7 @@ kbd {
 .counts {
   display: flex;
   gap: 14px;
-  font-weight: 500;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
 }
 .cnt.new {
@@ -677,7 +681,7 @@ kbd {
   font-size: 12px;
 }
 .chip b {
-  font-weight: 500;
+  font-weight: 400;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
@@ -706,7 +710,7 @@ kbd {
   z-index: 1;
   background: var(--card);
   box-shadow: 0 1px 0 var(--line);
-  font-weight: 400;
+  font-weight: 300;
   font-size: 12px;
   color: var(--muted);
   text-align: left;
@@ -725,7 +729,7 @@ kbd {
   overflow-wrap: anywhere;
 }
 .rows > tbody > tr > td.w {
-  font: 500 15px/1.25 var(--display);
+  font: 400 15px/1.25 var(--display);
 }
 .rows > tbody > tr > td.w .dot {
   margin-right: 6px;
@@ -737,7 +741,7 @@ kbd {
 .ru-inline {
   display: block;
   margin-top: 1px;
-  font: 400 13px/1.3 var(--ui);
+  font: 300 13px/1.3 var(--ui);
   color: var(--muted);
 }
 .rows > tbody > tr.row {
@@ -813,7 +817,7 @@ kbd {
   margin-top: 6px;
 }
 .cards-of th {
-  font-weight: 400;
+  font-weight: 300;
   color: var(--muted);
   text-align: left;
   padding: 0 6px 4px 0;
@@ -831,7 +835,7 @@ kbd {
   text-decoration: line-through;
 }
 .detail-h {
-  font: 500 13px/1.2 var(--ui);
+  font: 400 13px/1.2 var(--ui);
   margin: 14px 0 2px;
 }
 
@@ -907,7 +911,7 @@ kbd {
   margin: clamp(4px, 2vh, 20px) 0 clamp(16px, 3vh, 32px);
 }
 .test-top h2 {
-  font: 500 20px/1.2 var(--display);
+  font: 400 20px/1.2 var(--display);
   margin: 0;
 }
 .test-section {
@@ -936,7 +940,7 @@ kbd {
 .skill-picks legend {
   padding: 0;
   margin-bottom: 10px;
-  font-weight: 500;
+  font-weight: 400;
 }
 .pick {
   display: flex;
@@ -960,7 +964,7 @@ kbd {
   box-shadow: inset 0 0 0 1px var(--ink);
 }
 .pick-label {
-  font-weight: 500;
+  font-weight: 400;
 }
 .pick-count {
   margin-left: auto;
@@ -1021,11 +1025,11 @@ kbd {
   padding: 22px 24px 20px;
 }
 .settings h2 {
-  font: 500 26px/1.2 var(--display);
+  font: 400 26px/1.2 var(--display);
   margin: 0;
 }
 .settings h3 {
-  font: 500 15px/1.2 var(--ui);
+  font: 400 15px/1.2 var(--ui);
   margin: 8px 0 -8px;
 }
 .setting {
@@ -1089,7 +1093,7 @@ fieldset.setting {
   background: var(--ink);
   border-color: var(--ink);
   color: var(--card);
-  font-weight: 500;
+  font-weight: 400;
 }
 .settings-footer {
   display: flex;
