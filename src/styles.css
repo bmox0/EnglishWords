@@ -994,6 +994,16 @@ kbd {
   color: var(--muted);
   font-size: 13px;
 }
+.word-count {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.word-count .chip {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
 .test-rules {
   margin: 0;
   padding-left: 18px;

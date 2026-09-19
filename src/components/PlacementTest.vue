@@ -18,6 +18,7 @@ import type {Level, PlacementAnswer, PlacementQuestion, Skill} from "../domain/p
 const open = defineModel<boolean>("open", {required: true})
 
 const SECONDS_PER_QUESTION: Record<Exercise["mode"], number> = {choice: 4, type: 8}
+const WORD_COUNTS = [100, 50, 20]
 const MIN_ANSWER_MS = 250
 const MODE_TEXT = {
   auto: "about 40% picked from options and 60% typed, and a word you have not seen yet is always picked",
@@ -28,6 +29,7 @@ const MODE_TEXT = {
 const study = useStudy()
 const stage = ref<"intro" | "run" | "results">("intro")
 const selected = ref<Skill[]>(SKILLS.map((s) => s.key))
+const wordCount = ref<number | null>(null)
 const questions = shallowRef<PlacementQuestion[]>([])
 const answers = ref<PlacementAnswer[]>([])
 const index = ref(0)
@@ -50,14 +52,20 @@ function modeOf(noteId: string, kind: CardKind): Exercise["mode"] {
 }
 
 const counts = computed(() => Object.fromEntries(SKILLS.map((s) => [s.key, skillNotes(s.key).length])) as Record<Skill, number>)
-const total = computed(() => selected.value.reduce((sum, key) => sum + counts.value[key], 0))
+const most = computed(() => Math.max(0, ...selected.value.map((key) => counts.value[key])))
+const wordChoices = computed(() => WORD_COUNTS.filter((n) => n < most.value))
+const limit = computed(() => (wordCount.value !== null && wordCount.value < most.value ? wordCount.value : null))
+const asked = (key: Skill) => Math.min(counts.value[key], limit.value ?? Infinity)
+const total = computed(() => selected.value.reduce((sum, key) => sum + asked(key), 0))
 const minutes = computed(() => {
   const seconds = selected.value
     .flatMap((key) =>
-      skillNotes(key).map((note) => {
-        const chance = chanceOf(note.id, kindOf(key))
-        return chance * SECONDS_PER_QUESTION.choice + (1 - chance) * SECONDS_PER_QUESTION.type
-      }),
+      skillNotes(key)
+        .slice(0, asked(key))
+        .map((note) => {
+          const chance = chanceOf(note.id, kindOf(key))
+          return chance * SECONDS_PER_QUESTION.choice + (1 - chance) * SECONDS_PER_QUESTION.type
+        }),
     )
     .reduce((sum, x) => sum + x, 0)
   return Math.max(1, Math.round(seconds / 60))
@@ -132,7 +140,7 @@ function focusInput() {
 }
 
 function start() {
-  questions.value = buildPlacement(study.notes, selected.value, modeOf)
+  questions.value = buildPlacement(study.notes, selected.value, limit.value ?? Infinity, modeOf)
   answers.value = []
   index.value = 0
   applied.value = null
@@ -257,13 +265,32 @@ onBeforeUnmount(() => {
           <label v-for="s in SKILLS" :key="s.key" class="pick">
             <input v-model="selected" class="check" type="checkbox" :value="s.key" />
             <span class="pick-label">{{ s.label }}</span>
-            <span class="pick-count">{{ counts[s.key] }} words</span>
+            <span class="pick-count">{{ asked(s.key) }} words</span>
           </label>
         </fieldset>
 
+        <div class="word-count">
+          <span id="word-count-label">Words</span>
+          <div class="chips" role="group" aria-labelledby="word-count-label">
+            <button type="button" class="chip" :class="{on: limit === null}" :aria-pressed="limit === null" @click="wordCount = null">All</button>
+            <button
+              v-for="n in wordChoices"
+              :key="n"
+              type="button"
+              class="chip"
+              :class="{on: limit === n}"
+              :aria-pressed="limit === n"
+              @click="wordCount = n"
+            >
+              {{ n }}
+            </button>
+          </div>
+        </div>
+
         <p class="msg">
-          {{ total }} questions, about {{ minutes }} min. You can stop at any time and keep what you answered. The results replace the progress of the
-          tested cards.
+          {{ total }} questions, about {{ minutes }} min.
+          <template v-if="limit !== null">Each skill takes the first {{ limit }} words of the list.</template>
+          You can stop at any time and keep what you answered. The results replace the progress of the tested cards.
         </p>
         <div class="settings-actions">
           <button type="button" class="btn primary" :disabled="!total" @click="start">Start</button>

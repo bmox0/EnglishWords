@@ -26,8 +26,20 @@ describe("buildPlacement", () => {
     expect(notesFor("v3", [...NOTES.slice(0, 2), {id: "noun-cat", pos: "noun", en: "cat", ru: ["кот"], tags: []}])).toHaveLength(2)
   })
 
+  it("asks each skill on its own first words of the deck, taking wrong options from the whole deck", () => {
+    const questions = buildPlacement(NOTES, ["en_ru", "ru_en", "v2"], 50)
+    expect(questions).toHaveLength(150)
+    const idsOf = (skill: string) => new Set(questions.filter((q) => q.skill === skill).map((q) => q.noteId))
+    expect(idsOf("en_ru")).toEqual(new Set(NOTES.slice(0, 50).map((n) => n.id)))
+    expect(idsOf("ru_en")).toEqual(idsOf("en_ru"))
+    expect(idsOf("v2")).toEqual(idsOf("en_ru"))
+    expect(buildPlacement(NOTES, ["v3"], 500)).toHaveLength(NOTES.length)
+    const first = new Set(NOTES.slice(0, 50).map((n) => n.ru.join(", ")))
+    expect(questions.filter((q) => q.skill === "en_ru").some((q) => q.options.some((o) => !first.has(o)))).toBe(true)
+  })
+
   it("asks by typing or choosing as the mode function says", () => {
-    const questions = buildPlacement(NOTES, ["en_ru"], (id) => (id === "verb-go" ? "type" : "choice"))
+    const questions = buildPlacement(NOTES, ["en_ru"], Infinity, (id) => (id === "verb-go" ? "type" : "choice"))
     const go = questions.find((q) => q.noteId === "verb-go")!
     expect(go).toMatchObject({mode: "type", options: []})
     expect(questions.filter((q) => q.mode === "choice").every((q) => q.options.length === 4)).toBe(true)

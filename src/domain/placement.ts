@@ -69,15 +69,19 @@ export function kindOf(skill: Skill): CardKind {
   return SKILLS.find((s) => s.key === skill)?.kind ?? "en_ru"
 }
 
-/** Every question of the test: skill after skill, notes shuffled inside each skill; `modeOf` picks typing or choosing per card. */
+/**
+ * Every question of the test: skill after skill, each skill on its first `limit` notes in deck order, shuffled;
+ * `modeOf` picks typing or choosing per card.
+ */
 export function buildPlacement(
   notes: Note[],
   skills: Skill[],
+  limit: number = Infinity,
   modeOf: (noteId: string, kind: CardKind) => Exercise["mode"] = () => "choice",
   random: () => number = Math.random,
 ): PlacementQuestion[] {
   return SKILLS.filter((s) => skills.includes(s.key)).flatMap((s) =>
-    shuffle(notesFor(s.key, notes), random).map((note) => {
+    shuffle(notesFor(s.key, notes).slice(0, limit), random).map((note) => {
       const mode = modeOf(note.id, s.kind)
       const options = mode === "choice" ? buildOptions(note, s.given, s.ask, notes, random) : []
       return {noteId: note.id, skill: s.key, given: s.given, ask: s.ask, mode, options}
