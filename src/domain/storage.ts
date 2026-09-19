@@ -53,7 +53,7 @@ function readDone(value: unknown): DoneEntry | null {
   const {cardId, noteId, grade, given, ask, text, ok} = value
   if (typeof cardId !== "string" || typeof noteId !== "string" || typeof text !== "string" || typeof ok !== "boolean") return null
   if (![1, 2, 3, 4].includes(grade as number) || !FIELDS.includes(given as string) || !FIELDS.includes(ask as string)) return null
-  return value as unknown as DoneEntry
+  return {...(value as unknown as DoneEntry), mode: value.mode === "choice" ? "choice" : "type"}
 }
 
 function readDay(value: unknown, t: number): DayProgress {

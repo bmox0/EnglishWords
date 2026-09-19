@@ -1,5 +1,6 @@
 import {dayOf} from "./scheduler"
 
+import type {Exercise} from "./exercise"
 import type {Field} from "./notes"
 import type {Grade} from "./scheduler"
 
@@ -12,6 +13,7 @@ export interface DoneEntry {
   ask: Field
   text: string
   ok: boolean
+  mode: Exercise["mode"]
 }
 
 /** Today's counters: the limits, the notes that got a new card today and the answers log reset when the day changes. */

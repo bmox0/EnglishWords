@@ -2,7 +2,7 @@
 import {computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef} from "vue"
 
 import {checkAnswer} from "../domain/check"
-import {modeFor} from "../domain/exercise"
+import {choiceChance} from "../domain/exercise"
 import {FIELD_LABEL, taskText} from "../domain/labels"
 import {display} from "../domain/notes"
 import {buildPlacement, cardLevels, kindOf, levelOf, LIMITS, notesFor, SKILLS} from "../domain/placement"
@@ -20,7 +20,7 @@ const open = defineModel<boolean>("open", {required: true})
 const SECONDS_PER_QUESTION: Record<Exercise["mode"], number> = {choice: 4, type: 8}
 const MIN_ANSWER_MS = 250
 const MODE_TEXT = {
-  auto: "choose for words you have not seen yet, type the rest",
+  auto: "about 40% picked from options and 60% typed, and a word you have not seen yet is always picked",
   type: "every answer is typed",
   choice: "every answer is picked from four options",
 } as const
@@ -40,17 +40,25 @@ let shownAt = 0
 const notesById = computed(() => new Map(study.notes.map((n) => [n.id, n])))
 const skillNotes = (key: Skill) => notesFor(key, study.notes, study.state.settings.formsFor)
 
-function modeOf(noteId: string, kind: CardKind): Exercise["mode"] {
+function chanceOf(noteId: string, kind: CardKind): number {
   const card = study.cardsByNote.value.get(noteId)?.find((c) => c.kind === kind)
-  const setting = study.state.settings.answerMode
-  return card ? modeFor(card, setting) : setting === "type" ? "type" : "choice"
+  return choiceChance(card ?? {type: "new", kind}, study.state.settings.answerMode)
+}
+
+function modeOf(noteId: string, kind: CardKind): Exercise["mode"] {
+  return Math.random() < chanceOf(noteId, kind) ? "choice" : "type"
 }
 
 const counts = computed(() => Object.fromEntries(SKILLS.map((s) => [s.key, skillNotes(s.key).length])) as Record<Skill, number>)
 const total = computed(() => selected.value.reduce((sum, key) => sum + counts.value[key], 0))
 const minutes = computed(() => {
   const seconds = selected.value
-    .flatMap((key) => skillNotes(key).map((note) => SECONDS_PER_QUESTION[modeOf(note.id, kindOf(key))]))
+    .flatMap((key) =>
+      skillNotes(key).map((note) => {
+        const chance = chanceOf(note.id, kindOf(key))
+        return chance * SECONDS_PER_QUESTION.choice + (1 - chance) * SECONDS_PER_QUESTION.type
+      }),
+    )
     .reduce((sum, x) => sum + x, 0)
   return Math.max(1, Math.round(seconds / 60))
 })

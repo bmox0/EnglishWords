@@ -27,7 +27,7 @@ const learning = (due: number, ivl = 0): CardState => ({...freshState(), type: i
 const ids = (cards: Card[]) => cards.map((c) => c.id)
 const answered = (noteId: string): DayProgress => ({
   ...freshDay(T),
-  done: [{cardId: `${noteId}:en_ru`, noteId, grade: 3, given: "v1", ask: "ru", text: "", ok: true}],
+  done: [{cardId: `${noteId}:en_ru`, noteId, grade: 3, given: "v1", ask: "ru", text: "", ok: true, mode: "type"}],
 })
 
 describe("cards", () => {

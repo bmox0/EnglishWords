@@ -87,7 +87,8 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     state.session = freshSession()
     if (!card) return
     state.session.cardId = card.id
-    state.session.exercise = makeExercise(card, modeFor(card, state.settings.answerMode), allNotes, random)
+    const today = {picked: state.day.done.filter((d) => d.mode === "choice").length, total: state.day.done.length}
+    state.session.exercise = makeExercise(card, modeFor(card, state.settings.answerMode, today, random), allNotes, random)
   }
 
   function ensureCurrent() {
@@ -175,6 +176,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
       ask: exercise.ask,
       text: exercise.mode === "choice" ? (exercise.options[state.session.chosen ?? -1] ?? "") : state.session.answer,
       ok: result === "right",
+      mode: exercise.mode,
     })
     persist()
     state.session = freshSession()
