@@ -7,9 +7,6 @@ import type {CardState} from "./scheduler"
 /** What a card drills: English to Russian, Russian to English, or the verb forms. */
 export type CardKind = "en_ru" | "ru_en" | "forms"
 
-/** Which verbs get a forms card. */
-export type FormsFor = "irregular" | "all"
-
 /** A scheduled card; its id `<note id>:<kind>` keeps progress attached when words are added or reordered. */
 export interface Card extends CardState {
   id: string
@@ -19,17 +16,15 @@ export interface Card extends CardState {
 
 export type Maturity = "new" | "learn" | "young" | "mature"
 
-/** The kinds of cards a note produces. */
-export function cardKinds(note: Note, formsFor: FormsFor): CardKind[] {
-  const kinds: CardKind[] = ["en_ru", "ru_en"]
-  if (hasForms(note) && (formsFor === "all" || note.irregular)) kinds.push("forms")
-  return kinds
+/** The kinds of cards a note produces: every note with forms gets a forms card. */
+export function cardKinds(note: Note): CardKind[] {
+  return hasForms(note) ? ["en_ru", "ru_en", "forms"] : ["en_ru", "ru_en"]
 }
 
 /** All cards for the notes, restoring saved progress by card id and starting the rest as new. */
-export function buildCards(notes: Note[], formsFor: FormsFor, saved: Record<string, CardState>): Card[] {
+export function buildCards(notes: Note[], saved: Record<string, CardState>): Card[] {
   return notes.flatMap((note) =>
-    cardKinds(note, formsFor).map((kind) => {
+    cardKinds(note).map((kind) => {
       const id = `${note.id}:${kind}`
       return {...freshState(), ...saved[id], id, kind, note}
     }),

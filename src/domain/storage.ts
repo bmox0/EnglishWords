@@ -1,6 +1,5 @@
 import {freshDay} from "./day"
 
-import type {FormsFor} from "./cards"
 import type {DayProgress, DoneEntry} from "./day"
 import type {AnswerMode} from "./exercise"
 import type {CardState, CardType} from "./scheduler"
@@ -10,7 +9,6 @@ export const STORAGE_KEY = "english-words:v1"
 /** User settings. */
 export interface Settings {
   newPerDay: number
-  formsFor: FormsFor
   answerMode: AnswerMode
 }
 
@@ -23,7 +21,7 @@ export interface Saved {
   tableOpen: boolean
 }
 
-export const DEFAULT_SETTINGS: Settings = {newPerDay: 20, formsFor: "irregular", answerMode: "auto"}
+export const DEFAULT_SETTINGS: Settings = {newPerDay: 20, answerMode: "auto"}
 
 const ANSWER_MODES: AnswerMode[] = ["auto", "type", "choice"]
 
@@ -67,9 +65,8 @@ function readDay(value: unknown, t: number): DayProgress {
 function readSettings(value: unknown): Settings {
   if (!isObject(value)) return {...DEFAULT_SETTINGS}
   const newPerDay = isNumber(value.newPerDay) ? Math.min(500, Math.max(0, Math.round(value.newPerDay))) : DEFAULT_SETTINGS.newPerDay
-  const formsFor = value.formsFor === "all" || value.formsFor === "irregular" ? value.formsFor : DEFAULT_SETTINGS.formsFor
   const answerMode = ANSWER_MODES.includes(value.answerMode as AnswerMode) ? (value.answerMode as AnswerMode) : DEFAULT_SETTINGS.answerMode
-  return {newPerDay, formsFor, answerMode}
+  return {newPerDay, answerMode}
 }
 
 /** Reads a save from untrusted JSON, dropping anything malformed; returns null when it is not a save at all. */

@@ -38,7 +38,7 @@ const input = ref<HTMLInputElement | null>(null)
 let shownAt = 0
 
 const notesById = computed(() => new Map(study.notes.map((n) => [n.id, n])))
-const skillNotes = (key: Skill) => notesFor(key, study.notes, study.state.settings.formsFor)
+const skillNotes = (key: Skill) => notesFor(key, study.notes)
 
 function chanceOf(noteId: string, kind: CardKind): number {
   const card = study.cardsByNote.value.get(noteId)?.find((c) => c.kind === kind)
@@ -132,7 +132,7 @@ function focusInput() {
 }
 
 function start() {
-  questions.value = buildPlacement(study.notes, selected.value, study.state.settings.formsFor, modeOf)
+  questions.value = buildPlacement(study.notes, selected.value, modeOf)
   answers.value = []
   index.value = 0
   applied.value = null

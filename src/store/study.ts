@@ -64,7 +64,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     day: rollDay(initial.day, clock()),
     settings: initial.settings,
     tableOpen: initial.tableOpen,
-    cards: buildCards(allNotes, initial.settings.formsFor, savedCards) as Card[],
+    cards: buildCards(allNotes, savedCards) as Card[],
     session: freshSession(),
     practice: null as Practice | null,
     practiceResult: null as {right: number; total: number} | null,
@@ -126,7 +126,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     state.day = rollDay(saved.day, state.now)
     state.settings = saved.settings
     state.tableOpen = saved.tableOpen
-    state.cards = buildCards(allNotes, saved.settings.formsFor, savedCards)
+    state.cards = buildCards(allNotes, savedCards)
     const same = previous && state.cards.find((c) => c.id === previous.id)?.reps === previous.reps
     if (!same) state.practice = null
     state.session = same ? session : freshSession()
@@ -264,9 +264,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
   }
 
   function updateSettings(patch: Partial<Settings>) {
-    const formsChanged = patch.formsFor !== undefined && patch.formsFor !== state.settings.formsFor
     state.settings = {...state.settings, ...patch}
-    if (formsChanged) state.cards = buildCards(allNotes, state.settings.formsFor, savedCards)
     persist()
     if (patch.answerMode && current.value && !state.session.result) start(current.value)
     ensureCurrent()
@@ -311,7 +309,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     savedCards = {}
     state.now = clock()
     state.day = freshDay(state.now)
-    state.cards = buildCards(allNotes, state.settings.formsFor, savedCards)
+    state.cards = buildCards(allNotes, savedCards)
     state.practice = null
     state.session = freshSession()
     persist()

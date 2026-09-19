@@ -18,24 +18,23 @@ const answer = (patch: Partial<PlacementAnswer>): PlacementAnswer => ({
 })
 
 describe("buildPlacement", () => {
-  it("asks every note once per chosen skill, forms only for verbs with a forms card", () => {
-    const irregular = NOTES.filter((n) => n.irregular).length
-    const questions = buildPlacement(NOTES, ["ru_en", "v2"], "irregular")
-    expect(questions).toHaveLength(NOTES.length + irregular)
+  it("asks every note once per chosen skill, forms for regular and irregular verbs alike", () => {
+    const questions = buildPlacement(NOTES, ["ru_en", "v2"])
+    expect(questions).toHaveLength(NOTES.length * 2)
     expect(questions.slice(0, NOTES.length).every((q) => q.skill === "ru_en")).toBe(true)
-    expect(new Set(questions.filter((q) => q.skill === "v2").map((q) => q.noteId)).size).toBe(irregular)
-    expect(notesFor("v3", NOTES, "all")).toHaveLength(NOTES.length)
+    expect(new Set(questions.filter((q) => q.skill === "v2").map((q) => q.noteId)).size).toBe(NOTES.length)
+    expect(notesFor("v3", [...NOTES.slice(0, 2), {id: "noun-cat", pos: "noun", en: "cat", ru: ["кот"], tags: []}])).toHaveLength(2)
   })
 
   it("asks by typing or choosing as the mode function says", () => {
-    const questions = buildPlacement(NOTES, ["en_ru"], "irregular", (id) => (id === "verb-go" ? "type" : "choice"))
+    const questions = buildPlacement(NOTES, ["en_ru"], (id) => (id === "verb-go" ? "type" : "choice"))
     const go = questions.find((q) => q.noteId === "verb-go")!
     expect(go).toMatchObject({mode: "type", options: []})
     expect(questions.filter((q) => q.mode === "choice").every((q) => q.options.length === 4)).toBe(true)
   })
 
   it("puts the right answer among the options", () => {
-    for (const q of buildPlacement(NOTES, ["en_ru", "v3"], "irregular")) {
+    for (const q of buildPlacement(NOTES, ["en_ru", "v3"])) {
       const note = NOTES.find((n) => n.id === q.noteId)!
       const correct = q.ask === "ru" ? note.ru.join(", ") : (note.v3 ?? []).join(" / ")
       expect(q.options).toContain(correct)

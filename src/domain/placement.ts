@@ -2,7 +2,7 @@ import {cardKinds} from "./cards"
 import {buildOptions} from "./choices"
 import {dayOf, dayStart, freshState, SCHEDULER} from "./scheduler"
 
-import type {CardKind, FormsFor} from "./cards"
+import type {CardKind} from "./cards"
 import type {Verdict} from "./check"
 import type {Exercise} from "./exercise"
 import type {Field, Note} from "./notes"
@@ -59,9 +59,9 @@ function shuffle<T>(items: T[], random: () => number): T[] {
 }
 
 /** Notes a skill can be checked on: form skills only cover notes that have a forms card. */
-export function notesFor(skill: Skill, notes: Note[], formsFor: FormsFor): Note[] {
+export function notesFor(skill: Skill, notes: Note[]): Note[] {
   const kind = SKILLS.find((s) => s.key === skill)?.kind ?? "en_ru"
-  return notes.filter((note) => cardKinds(note, formsFor).includes(kind))
+  return notes.filter((note) => cardKinds(note).includes(kind))
 }
 
 /** The card kind a skill feeds. */
@@ -73,12 +73,11 @@ export function kindOf(skill: Skill): CardKind {
 export function buildPlacement(
   notes: Note[],
   skills: Skill[],
-  formsFor: FormsFor,
   modeOf: (noteId: string, kind: CardKind) => Exercise["mode"] = () => "choice",
   random: () => number = Math.random,
 ): PlacementQuestion[] {
   return SKILLS.filter((s) => skills.includes(s.key)).flatMap((s) =>
-    shuffle(notesFor(s.key, notes, formsFor), random).map((note) => {
+    shuffle(notesFor(s.key, notes), random).map((note) => {
       const mode = modeOf(note.id, s.kind)
       const options = mode === "choice" ? buildOptions(note, s.given, s.ask, notes, random) : []
       return {noteId: note.id, skill: s.key, given: s.given, ask: s.ask, mode, options}

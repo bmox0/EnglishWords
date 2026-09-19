@@ -4,7 +4,6 @@ import {ref, watch} from "vue"
 import {useTheme} from "../composables/useTheme"
 import {useStudy} from "../store/study"
 
-import type {FormsFor} from "../domain/cards"
 import type {AnswerMode} from "../domain/exercise"
 
 const open = defineModel<boolean>("open", {required: true})
@@ -34,10 +33,6 @@ const ANSWER_MODES: {value: AnswerMode; label: string}[] = [
 
 function onAnswerMode(value: AnswerMode) {
   study.updateSettings({answerMode: value})
-}
-
-function onFormsFor(value: FormsFor) {
-  study.updateSettings({formsFor: value})
 }
 
 function exportFile() {
@@ -88,15 +83,6 @@ function reset() {
           <input type="radio" name="answers" :checked="study.state.settings.answerMode === mode.value" @change="onAnswerMode(mode.value)" />
           {{ mode.label }}
         </label>
-      </fieldset>
-
-      <fieldset class="setting">
-        <legend>Forms cards</legend>
-        <label
-          ><input type="radio" name="forms" :checked="study.state.settings.formsFor === 'irregular'" @change="onFormsFor('irregular')" /> Irregular
-          verbs only</label
-        >
-        <label><input type="radio" name="forms" :checked="study.state.settings.formsFor === 'all'" @change="onFormsFor('all')" /> All verbs</label>
       </fieldset>
 
       <h3>Progress</h3>

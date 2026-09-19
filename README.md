@@ -8,7 +8,7 @@ Learn English verbs by typing them: the translation in both directions and the p
 
 - **Dictation.** Each question asks one thing: a translation, the infinitive, or one past form. You type the answer or pick it from four options. Typos count as "almost", and a verb that shares the translation (`make` for делать) gets another try instead of a miss.
 - **Verb table.** The table shows every verb with its forms, translation and progress. It has search and filters: All, Today, Mistakes, Learning, New, Learned. The verb on the card is hidden; you can peek, but then the grade offered is Again.
-- **Anki scheduling.** Each verb has separate cards that open one by one: EN → RU, then RU → EN, then forms (irregular verbs only by default).
+- **Anki scheduling.** Each verb has separate cards that open one by one: EN → RU, then RU → EN, then forms, for every verb.
 - **Mixed answers.** About 40% of answers are picked from four options and 60% are typed, balanced over the day. The wrong options are easy to confuse with the right one: other forms of the same verb, the `-ed` guess (`goed`), words spelled alike.
 - **Placement test.** It checks what you already know, so study time goes to the rest.
 - **After the daily plan.** **Learn 10 more cards** raises today's new-card limit. **Practice mistakes** drills up to 20 cards you got wrong without changing when they come back.
@@ -68,7 +68,7 @@ Words live in `data/<NN>-<set>.jsonl`, one JSON object per line, for example `da
 | `en`        | yes      | The English word; the infinitive (without "to") for verbs.                                                   |
 | `ru`        | yes      | Translations. Any of them is accepted as an answer, so list the common ones.                                 |
 | `v2`, `v3`  | verbs    | Past simple and past participle; every accepted variant goes in the list (`["was", "were"]`).                |
-| `irregular` | no       | `true` when a form is not built with -ed, -d, -ied or a doubled consonant. Irregular verbs get a forms card. |
+| `irregular` | no       | `true` when a form is not built with -ed, -d, -ied or a doubled consonant. The table dims the regular forms. |
 | `hint`      | twins    | Required for words that share a Russian translation (`do` / `make`), shown next to the Russian prompt.       |
 | `tags`      | yes      | Labels for the set; may be empty.                                                                            |
 
