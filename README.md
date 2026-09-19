@@ -9,6 +9,16 @@ Learn English verbs by typing: the translation both ways and the past forms, sch
 - Answers are picked from four options while a card is new or was just failed, and typed from the second learning step and on reviews. **Settings → Answers** switches to always typing or always choosing. Wrong options are words that are easy to mix up: other forms of the same verb, the `-ed` guess (`goed`), similar spellings; a word with the same translation is never offered.
 - On a phone the table opens as a full-screen sheet from the **Table** button.
 
+## Placement test
+
+The stopwatch button runs a placement test, so words you already know skip the learning queue. Pick what to check (EN → RU, RU → EN, V1 → V2, V1 → V3); every word is asked once, the next question comes right away, and questions follow **Settings → Answers**.
+
+- **Known**: right within 4 s (8 s when typing). The card goes to review in 7–21 days, spread so they do not all come due together.
+- **Unsure**: right but slower, or typed with a typo. Review in 2–4 days.
+- **New**: wrong, "Don't know", or slower than 12 s (20 s typing). The card starts over as new.
+
+V1 → V2 and V1 → V3 both rate the one forms card, which takes the worse result. **Apply to progress** replaces the state of every tested card; you can stop early and apply what you answered.
+
 ## Progress
 
 Progress lives in the browser's `localStorage` under the key `english-words:v1`, so every browser and device has its own. Use **Settings → Export / Import** to back it up or move it between devices.

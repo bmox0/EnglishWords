@@ -197,6 +197,25 @@ describe("study session", () => {
     expect(saved.settings.newPerDay).toBe(5)
   })
 
+  it("applies placement results, resetting unknown cards and scheduling known ones", () => {
+    const {study, store} = setup()
+    answerCurrent(study, "делать")
+    study.grade(4)
+    const changed = study.applyPlacement(
+      new Map([
+        ["verb-do:en_ru", "unknown"],
+        ["verb-make:en_ru", "known"],
+        ["verb-walk:ru_en", "shaky"],
+      ]),
+    )
+    expect(changed).toBe(3)
+    const saved = JSON.parse(store.data.get(STORAGE_KEY)!)
+    expect(saved.cards["verb-do:en_ru"]).toBeUndefined()
+    expect(saved.cards["verb-make:en_ru"]).toMatchObject({type: "review", ivl: 7})
+    expect(saved.cards["verb-walk:ru_en"]).toMatchObject({type: "review", ivl: 2})
+    expect(study.current.value?.id).toBe("verb-make:ru_en")
+  })
+
   it("survives corrupt storage", () => {
     const store = memoryStore()
     store.data.set(STORAGE_KEY, "{broken")

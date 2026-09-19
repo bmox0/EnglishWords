@@ -12,7 +12,7 @@ import FormsRow from "./FormsRow.vue"
 import GradeButtons from "./GradeButtons.vue"
 
 const props = defineProps<{compact: boolean; tableVisible: boolean; blocked: boolean}>()
-const emit = defineEmits<{"toggle-table": []; "open-settings": []}>()
+const emit = defineEmits<{"toggle-table": []; "open-settings": []; "open-test": []}>()
 
 const study = useStudy()
 const session = computed(() => study.state.session)
@@ -21,6 +21,7 @@ const input = ref<HTMLInputElement | null>(null)
 const after = ref<HTMLElement | null>(null)
 
 const remaining = computed(() => remainingCount(study.queue.value))
+const untouched = computed(() => study.state.cards.every((c) => c.type === "new"))
 const upcoming = computed(() => Math.max(0, remaining.value - (card.value ? 1 : 0)))
 
 const VERDICT_TEXT = {right: "Correct", close: "Almost: check the spelling", wrong: "Not quite"} as const
@@ -106,6 +107,20 @@ onMounted(focusInput)
           <i v-for="index in upcoming" :key="`next-${index}`" />
         </div>
         <div class="top-actions">
+          <button type="button" class="icon-btn" aria-label="Placement test" title="Placement test" @click="emit('open-test')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="13" r="8" />
+              <path d="M12 9v4l2.5 2.5M9 2h6" />
+            </svg>
+          </button>
           <button type="button" class="icon-btn" aria-label="Settings" title="Settings" @click="emit('open-settings')">
             <svg
               viewBox="0 0 24 24"
@@ -138,6 +153,12 @@ onMounted(focusInput)
           </button>
         </div>
       </div>
+
+      <p v-if="untouched" class="msg intro-test">
+        Already know some of these verbs?
+        <button type="button" class="text-btn" @click="emit('open-test')">Take the placement test</button>
+        to skip them.
+      </p>
 
       <p v-if="!study.state.storageOk" class="warn" role="alert">This browser is not saving progress (private mode or full storage).</p>
 

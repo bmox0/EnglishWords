@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, onMounted, ref} from "vue"
 
+import PlacementTest from "./components/PlacementTest.vue"
 import SettingsDialog from "./components/SettingsDialog.vue"
 import StudyPane from "./components/StudyPane.vue"
 import VerbTable from "./components/VerbTable.vue"
@@ -14,6 +15,7 @@ const study = useStudy()
 const compact = useMediaQuery("(max-width: 900px)")
 const sheetOpen = ref(false)
 const settingsOpen = ref(false)
+const testOpen = ref(false)
 const tableVisible = computed(() => (compact.value ? sheetOpen.value : study.state.tableOpen))
 
 function toggleTable() {
@@ -22,7 +24,7 @@ function toggleTable() {
 }
 
 function onKeydown(event: KeyboardEvent) {
-  if (event.metaKey || event.ctrlKey || event.altKey || event.isComposing || settingsOpen.value) return
+  if (event.metaKey || event.ctrlKey || event.altKey || event.isComposing || settingsOpen.value || testOpen.value) return
   const target = event.target as HTMLElement
   if (event.key === "Escape" && compact.value && sheetOpen.value) {
     sheetOpen.value = false
@@ -83,11 +85,13 @@ onBeforeUnmount(() => {
     <StudyPane
       :compact="compact"
       :table-visible="tableVisible"
-      :blocked="settingsOpen || (compact && sheetOpen)"
+      :blocked="settingsOpen || testOpen || (compact && sheetOpen)"
       @toggle-table="toggleTable"
       @open-settings="settingsOpen = true"
+      @open-test="testOpen = true"
     />
     <VerbTable v-show="tableVisible" :compact="compact" @close="sheetOpen = false" />
   </div>
   <SettingsDialog v-model:open="settingsOpen" />
+  <PlacementTest v-model:open="testOpen" />
 </template>

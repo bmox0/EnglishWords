@@ -4,6 +4,7 @@ import {buildCards, groupByNote, stateOf} from "../domain/cards"
 import {checkAnswer, suggestGrade} from "../domain/check"
 import {freshDay, rollDay} from "../domain/day"
 import {makeExercise, modeFor} from "../domain/exercise"
+import {seedState} from "../domain/placement"
 import {buildQueue, pickNext} from "../domain/queue"
 import {display} from "../domain/notes"
 import {nextState} from "../domain/scheduler"
@@ -14,6 +15,7 @@ import type {Verdict} from "../domain/check"
 import type {DayProgress} from "../domain/day"
 import type {Exercise} from "../domain/exercise"
 import type {Note} from "../domain/notes"
+import type {Level} from "../domain/placement"
 import type {CardState, Grade} from "../domain/scheduler"
 import type {KeyValueStore, Saved, Settings} from "../domain/storage"
 import type {InjectionKey} from "vue"
@@ -198,6 +200,23 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     ensureCurrent()
   }
 
+  /** Replaces the state of every tested card with the one its placement level gives; returns how many cards changed. */
+  function applyPlacement(levels: Map<string, Level>): number {
+    state.now = clock()
+    let changed = 0
+    for (const card of state.cards) {
+      const level = levels.get(card.id)
+      if (!level) continue
+      Object.assign(card, seedState(level, state.now, random))
+      if (card.type === "new") delete savedCards[card.id]
+      changed++
+    }
+    persist()
+    state.session = freshSession()
+    ensureCurrent()
+    return changed
+  }
+
   function exportProgress(): string {
     return JSON.stringify(snapshot(), null, 2)
   }
@@ -250,6 +269,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     peek,
     setTableOpen,
     updateSettings,
+    applyPlacement,
     exportProgress,
     importProgress,
     resetProgress,
