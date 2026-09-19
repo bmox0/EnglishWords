@@ -21,31 +21,30 @@
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --display: var(--mono);
   --ui: var(--mono);
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --desk: #141821;
-    --pane: #181d27;
-    --card: #1e2430;
-    --ink: #e7ebf2;
-    --muted: #98a1b4;
-    --rule: #2a3549;
-    --line: rgba(231, 235, 242, 0.14);
-    --hover: rgba(231, 235, 242, 0.05);
-    --again: #f07385;
-    --hard: #e2a548;
-    --good: #5cc48d;
-    --easy: #78a6f2;
-    --new: #78a6f2;
-    --learn: #f07385;
-    --review: #5cc48d;
-    --young: #2f6b4a;
-    --mature: #5cc48d;
-    --thumb: rgba(231, 235, 242, 0.14);
-    --thumb-hover: rgba(231, 235, 242, 0.32);
-  }
+:root.dark {
+  --desk: #141821;
+  --pane: #181d27;
+  --card: #1e2430;
+  --ink: #e7ebf2;
+  --muted: #98a1b4;
+  --rule: #2a3549;
+  --line: rgba(231, 235, 242, 0.14);
+  --hover: rgba(231, 235, 242, 0.05);
+  --again: #f07385;
+  --hard: #e2a548;
+  --good: #5cc48d;
+  --easy: #78a6f2;
+  --new: #78a6f2;
+  --learn: #f07385;
+  --review: #5cc48d;
+  --young: #2f6b4a;
+  --mature: #5cc48d;
+  --thumb: rgba(231, 235, 242, 0.14);
+  --thumb-hover: rgba(231, 235, 242, 0.32);
+  color-scheme: dark;
 }
 
 * {
@@ -174,6 +173,22 @@ kbd {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  animation: vt-reveal 400ms ease-in-out both;
+  mix-blend-mode: normal;
+}
+@keyframes vt-reveal {
+  from {
+    clip-path: var(--vt-clip-from);
+  }
+  to {
+    clip-path: var(--vt-clip-to);
   }
 }
 @media (prefers-reduced-motion: reduce) {

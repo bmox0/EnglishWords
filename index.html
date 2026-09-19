@@ -4,12 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content="Learn English verbs by typing: translation both ways and the past forms, scheduled like Anki." />
-    <meta name="theme-color" content="#E3E8EF" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#141821" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#e3e8ef" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Verbs" />
     <title>English Verbs</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <script>
+      try {
+        const saved = window.localStorage.getItem("english-words:dark")
+        const isDark = saved ? saved === "true" : window.matchMedia("(prefers-color-scheme: dark)").matches
+        document.documentElement.classList.toggle("dark", isDark)
+        const themeColor = document.querySelector('meta[name="theme-color"]')
+        if (themeColor) themeColor.content = isDark ? "#141821" : "#e3e8ef"
+      } catch (e) {
+        console.error("Could not apply the saved theme", e)
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
