@@ -31,21 +31,13 @@ function onKeydown(event: KeyboardEvent) {
     return
   }
   if (target.closest("[data-no-hotkeys]")) return
-  if (study.state.practice && study.state.session.result) {
+  if (study.state.session.result) {
     if (event.key === "Enter") {
       event.preventDefault()
-      study.practiceNext()
-    }
-    return
-  }
-  const suggested = study.suggested.value
-  if (suggested) {
-    if (["1", "2", "3", "4"].includes(event.key)) {
+      study.next()
+    } else if (!study.state.practice && ["1", "2", "3", "4"].includes(event.key)) {
       event.preventDefault()
       study.grade(Number(event.key) as Grade)
-    } else if (event.key === "Enter") {
-      event.preventDefault()
-      study.grade(suggested)
     }
     return
   }
@@ -67,7 +59,9 @@ function onStorage(event: StorageEvent) {
 }
 
 function onVisible() {
-  if (document.visibilityState === "visible") study.tick()
+  if (document.visibilityState !== "visible") return
+  study.restartTimer()
+  study.tick()
 }
 
 let timer = 0

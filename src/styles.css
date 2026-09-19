@@ -502,11 +502,8 @@ input[type="radio"]:checked::before {
 kbd {
   flex: none;
 }
-.opt:hover:not(:disabled) {
+.opts:not(.answered) .opt:hover {
   border-color: var(--ink);
-}
-.opt:disabled {
-  cursor: default;
 }
 .opt.right {
   border-color: var(--good);
@@ -533,55 +530,32 @@ kbd {
   margin-top: 0;
 }
 
-.grades {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-.grade {
+.graded {
   --c: var(--ink);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  padding: 10px 6px 9px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--card);
-  cursor: pointer;
-  touch-action: manipulation;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
 }
-.grade[data-g="1"] {
+.graded[data-g="1"] {
   --c: var(--again);
 }
-.grade[data-g="2"] {
+.graded[data-g="2"] {
   --c: var(--hard);
 }
-.grade[data-g="3"] {
+.graded[data-g="3"] {
   --c: var(--good);
 }
-.grade[data-g="4"] {
+.graded[data-g="4"] {
   --c: var(--easy);
 }
-.grade b {
+.graded b {
   color: var(--c);
   font-weight: 400;
+  font-size: 16px;
 }
-.grade small {
-  color: var(--muted);
-  font-size: 13px;
+.graded small {
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
-}
-.grade:hover {
-  border-color: var(--c);
-}
-.grade.suggested {
-  background: var(--c);
-  border-color: var(--c);
-}
-.grade.suggested b,
-.grade.suggested small {
-  color: var(--card);
 }
 
 .forms {
@@ -1275,15 +1249,6 @@ fieldset.setting {
 }
 
 @media (max-width: 420px) {
-  .grades {
-    gap: 6px;
-  }
-  .grade {
-    padding: 9px 2px 8px;
-  }
-  .grade small {
-    font-size: 12px;
-  }
   .side-toggle {
     padding: 0 10px;
   }

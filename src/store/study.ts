@@ -1,7 +1,7 @@
 import {computed, inject, markRaw, reactive} from "vue"
 
 import {buildCards, groupByNote, stateOf} from "../domain/cards"
-import {checkAnswer, suggestGrade} from "../domain/check"
+import {checkAnswer, gradeAnswer, gradeReason} from "../domain/check"
 import {freshDay, rollDay} from "../domain/day"
 import {makeExercise, modeFor} from "../domain/exercise"
 import {seedState} from "../domain/placement"
@@ -20,7 +20,7 @@ import type {CardState, Grade} from "../domain/scheduler"
 import type {KeyValueStore, Saved, Settings} from "../domain/storage"
 import type {InjectionKey} from "vue"
 
-/** The question on screen and what has happened to it so far. */
+/** The question on screen and what has happened to it so far; `shownAt` and `answeredAt` time the answer. */
 export interface Session {
   cardId: string | null
   exercise: Exercise | null
@@ -29,6 +29,8 @@ export interface Session {
   chosen: number | null
   other: Note | null
   peeked: boolean
+  shownAt: number
+  answeredAt: number | null
 }
 
 /** An extra drill over cards with mistakes; it never changes the schedule. */
@@ -51,7 +53,20 @@ export const LEARN_MORE = 10
 /** The most cards one practice round takes. */
 export const PRACTICE_SIZE = 20
 
-const freshSession = (): Session => ({cardId: null, exercise: null, answer: "", result: null, chosen: null, other: null, peeked: false})
+/** A tap on an option sooner than this after answering is a double tap, not a request for the next card. */
+export const DOUBLE_TAP_MS = 400
+
+const freshSession = (): Session => ({
+  cardId: null,
+  exercise: null,
+  answer: "",
+  result: null,
+  chosen: null,
+  other: null,
+  peeked: false,
+  shownAt: 0,
+  answeredAt: null,
+})
 
 /** Creates the study state: cards, today's queue, the current question, and persistence to `store`. */
 export function createStudy(notes: Note[], store: KeyValueStore | null, clock: () => number = Date.now, random: () => number = Math.random) {
@@ -81,7 +96,14 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     return state.cards.filter((c) => c.type !== "new" && (wrongToday.has(c.id) || c.lapses > 0)).map((c) => c.id)
   })
   const current = computed(() => (state.session.cardId ? (state.cards.find((c) => c.id === state.session.cardId) ?? null) : null))
-  const suggested = computed(() => (state.session.result ? suggestGrade(state.session.result, state.session.peeked) : null))
+  const graded = computed(() => {
+    const {result, peeked, exercise, shownAt, answeredAt} = state.session
+    if (!result || !exercise) return null
+    const ms = (answeredAt ?? shownAt) - shownAt
+    return {grade: gradeAnswer(result, peeked, exercise.mode, ms), reason: gradeReason(result, peeked, exercise.mode, ms)}
+  })
+  const autoGrade = computed(() => graded.value?.grade ?? null)
+  const autoGradeReason = computed(() => graded.value?.reason ?? "")
 
   const cardsByNote = computed(() => groupByNote(state.cards))
 
@@ -110,6 +132,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     state.session = freshSession()
     if (!card) return
     state.session.cardId = card.id
+    state.session.shownAt = clock()
     const today = {picked: state.day.done.filter((d) => d.mode === "choice").length, total: state.day.done.length}
     state.session.exercise = makeExercise(card, modeFor(card, state.settings.answerMode, today, random), allNotes, random)
   }
@@ -161,21 +184,40 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     }
     state.session.other = null
     state.session.result = result.verdict
+    state.session.answeredAt = clock()
   }
 
-  /** Answers a choice question with the option at `index`. */
+  /** Starts timing the question again, for when the page comes back after being hidden. */
+  function restartTimer() {
+    if (!state.session.result) state.session.shownAt = clock()
+  }
+
+  /** Answers a choice question with the option at `index`; tapping an option again after the answer moves on, like Enter. */
   function choose(index: number) {
     const card = current.value
     const exercise = state.session.exercise
     const option = exercise?.options[index]
-    if (!card || exercise?.mode !== "choice" || option === undefined || state.session.result) return
+    if (!card || exercise?.mode !== "choice" || option === undefined) return
+    if (state.session.result) {
+      if (clock() - (state.session.answeredAt ?? 0) >= DOUBLE_TAP_MS) next()
+      return
+    }
     state.session.chosen = index
     state.session.result = option === display(card.note, exercise.ask) ? "right" : "wrong"
+    state.session.answeredAt = clock()
   }
 
   /** Gives up on a choice question without guessing. */
   function giveUp() {
-    if (current.value && state.session.exercise?.mode === "choice" && !state.session.result) state.session.result = "wrong"
+    if (!current.value || state.session.exercise?.mode !== "choice" || state.session.result) return
+    state.session.result = "wrong"
+    state.session.answeredAt = clock()
+  }
+
+  /** Moves on after an answer: a practice round goes to its next card, otherwise the answer gets its automatic grade. */
+  function next() {
+    if (state.practice) practiceNext()
+    else if (autoGrade.value) grade(autoGrade.value)
   }
 
   /** Raises today's new-card limit so more new cards come up. */
@@ -328,16 +370,19 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     state,
     queue,
     current,
-    suggested,
+    autoGrade,
+    autoGradeReason,
     canLearnMore,
     mistakeIds,
     cardsByNote,
     today,
     tick,
+    restartTimer,
     setAnswer,
     check,
     choose,
     giveUp,
+    next,
     grade,
     learnMore,
     startPractice,

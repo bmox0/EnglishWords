@@ -1,7 +1,8 @@
 import {describe, expect, it} from "vitest"
 
 import {NOTES} from "./data"
-import {buildPlacement, cardLevels, levelOf, LIMITS, notesFor, seedState} from "./placement"
+import {LIMITS} from "./check"
+import {buildPlacement, cardLevels, levelOf, notesFor, seedState} from "./placement"
 import {dayOf, dayStart} from "./scheduler"
 
 import type {PlacementAnswer} from "./placement"

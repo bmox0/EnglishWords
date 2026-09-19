@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef} from "vue"
 
-import {checkAnswer} from "../domain/check"
+import {checkAnswer, LIMITS} from "../domain/check"
 import {choiceChance} from "../domain/exercise"
 import {FIELD_LABEL, taskText} from "../domain/labels"
 import {display} from "../domain/notes"
-import {buildPlacement, cardLevels, kindOf, levelOf, LIMITS, notesFor, SKILLS} from "../domain/placement"
+import {buildPlacement, cardLevels, kindOf, levelOf, notesFor, SKILLS} from "../domain/placement"
 import {useStudy} from "../store/study"
 import ChoiceOptions from "./ChoiceOptions.vue"
 

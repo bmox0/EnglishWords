@@ -7,7 +7,7 @@ Learn English verbs by typing them: the translation in both directions and the p
 ## Features
 
 - **Dictation.** Each question asks one thing: a translation, the infinitive, or one past form. You type the answer or pick it from four options. Typos count as "almost", and a verb that shares the translation (`make` for делать) gets another try instead of a miss.
-- **Verb table.** The table shows every verb with its forms, translation and progress. It has search and filters: All, Today, Mistakes, Learning, New, Learned. The verb on the card is hidden; you can peek, but then the grade offered is Again.
+- **Verb table.** The table shows every verb with its forms, translation and progress. It has search and filters: All, Today, Mistakes, Learning, New, Learned. The verb on the card is hidden; you can peek, but then the card gets Again.
 - **Anki scheduling.** Each verb has separate cards that open one by one: EN → RU, then RU → EN, then forms, for every verb.
 - **Mixed answers.** About 40% of answers are picked from four options and 60% are typed, balanced over the day. The wrong options are easy to confuse with the right one: other forms of the same verb, the `-ed` guess (`goed`), words spelled alike.
 - **Placement test.** It checks what you already know, so study time goes to the rest.
@@ -17,12 +17,12 @@ Learn English verbs by typing them: the translation in both directions and the p
 
 ## Keys
 
-| Key   | When                                              |
-| ----- | ------------------------------------------------- |
-| Enter | check the answer, then accept the suggested grade |
-| 1–4   | pick an option, or choose another grade           |
-| Esc   | close the table on a phone                        |
-| 0     | "Don't know" in the placement test                |
+| Key   | When                                                 |
+| ----- | ---------------------------------------------------- |
+| Enter | check the answer, then go to the next card           |
+| 1–4   | pick an option, or change the grade after the answer |
+| Esc   | close the table on a phone                           |
+| 0     | "Don't know" in the placement test                   |
 
 An empty typed answer means "don't remember".
 
@@ -30,6 +30,7 @@ An empty typed answer means "don't remember".
 
 Cards follow Anki's v3 defaults: learning steps of 1 and 10 minutes, then 1 day (4 days on Easy); ease starts at 250%; a day starts at 4:00. **Settings** controls how many new cards appear per day (20 by default).
 
+- **Automatic grades.** Every answer is graded on its own: Again for a miss, "don't know" or a peek; Hard for a typo or a right answer slower than 12 s when picking (20 s when typing); Good otherwise. Easy is never given automatically. Keys 1–4 change the grade, and tapping an option again after the answer goes to the next card.
 - **Unlocking.** A new word starts with EN → RU. RU → EN opens the day after EN → RU is learned, and forms open the day after RU → EN. Opened cards use the daily new-card limit before new words do.
 - **No siblings back to back.** Cards of the same word never come one right after another.
 - **Answer modes.** **Settings → Answers** switches between the 40/60 mix, always typing and always picking. The first look at a brand-new word is always picked.

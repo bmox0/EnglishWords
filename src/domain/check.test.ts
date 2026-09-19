@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest"
 
-import {checkAnswer, gradeWord, levenshtein, normalize, suggestGrade} from "./check"
+import {checkAnswer, gradeAnswer, gradeReason, gradeWord, levenshtein, LIMITS, normalize} from "./check"
 
 import type {Note} from "./notes"
 
@@ -55,11 +55,27 @@ describe("checkAnswer", () => {
   })
 })
 
-describe("suggestGrade", () => {
-  it("offers Again after a peek even when the answer is right", () => {
-    expect(suggestGrade("right", false)).toBe(3)
-    expect(suggestGrade("close", false)).toBe(2)
-    expect(suggestGrade("wrong", false)).toBe(1)
-    expect(suggestGrade("right", true)).toBe(1)
+describe("gradeAnswer", () => {
+  it("grades by correctness: Good when right, Hard for a typo, Again for a miss or a peek", () => {
+    expect(gradeAnswer("right", false, "type", 1000)).toBe(3)
+    expect(gradeAnswer("close", false, "type", 1000)).toBe(2)
+    expect(gradeAnswer("wrong", false, "choice", 1000)).toBe(1)
+    expect(gradeAnswer("right", true, "choice", 1000)).toBe(1)
+  })
+
+  it("gives Hard to a right answer slower than the limit, which is longer for typing, and never Easy", () => {
+    expect(gradeAnswer("right", false, "choice", LIMITS.choice.slow)).toBe(3)
+    expect(gradeAnswer("right", false, "choice", LIMITS.choice.slow + 1)).toBe(2)
+    expect(gradeAnswer("right", false, "type", LIMITS.choice.slow + 1)).toBe(3)
+    expect(gradeAnswer("right", false, "type", LIMITS.type.slow + 1)).toBe(2)
+    expect(gradeAnswer("right", false, "choice", 100)).toBe(3)
+  })
+
+  it("explains each grade in a few words", () => {
+    expect(gradeReason("right", true, "choice", 1000)).toBe("you peeked")
+    expect(gradeReason("wrong", false, "choice", 1000)).toBe("not right")
+    expect(gradeReason("close", false, "type", 1000)).toBe("a typo")
+    expect(gradeReason("right", false, "choice", LIMITS.choice.slow)).toBe("within 12 s")
+    expect(gradeReason("right", false, "type", LIMITS.type.slow + 1)).toBe("over 20 s")
   })
 })

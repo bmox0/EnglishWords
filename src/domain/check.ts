@@ -60,8 +60,26 @@ export function checkAnswer(note: Note, exercise: Pick<Exercise, "given" | "ask"
   return {kind: "verdict", verdict}
 }
 
-/** The grade offered after checking: Again for a miss or a peek, Hard for a typo, Good otherwise. */
-export function suggestGrade(verdict: Verdict, peeked: boolean): Grade {
+/** A right answer within `fast` ms is quick, one slower than `slow` is too slow; typing gets more time. */
+export const LIMITS: Record<Exercise["mode"], {fast: number; slow: number}> = {
+  choice: {fast: 4000, slow: 12000},
+  type: {fast: 8000, slow: 20000},
+}
+
+/**
+ * The grade an answer gets on its own: Again for a miss, "don't know" or a peek; Hard for a typo or a right answer
+ * slower than the `slow` limit; Good otherwise. Easy is never given automatically.
+ */
+export function gradeAnswer(verdict: Verdict, peeked: boolean, mode: Exercise["mode"], ms: number): Grade {
   if (peeked || verdict === "wrong") return 1
-  return verdict === "close" ? 2 : 3
+  return verdict === "close" || ms > LIMITS[mode].slow ? 2 : 3
+}
+
+/** Why `gradeAnswer` gave its grade, in a few words, so the rule is easy to remember. */
+export function gradeReason(verdict: Verdict, peeked: boolean, mode: Exercise["mode"], ms: number): string {
+  const slow = LIMITS[mode].slow
+  if (peeked) return "you peeked"
+  if (verdict === "wrong") return "not right"
+  if (verdict === "close") return "a typo"
+  return `${ms > slow ? "over" : "within"} ${slow / 1000} s`
 }

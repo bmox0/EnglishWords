@@ -12,15 +12,14 @@ function stateOf(index: number): string {
 </script>
 
 <template>
-  <div class="opts" role="group" aria-label="Answer options">
+  <div class="opts" :class="{answered: !!result}" role="group" aria-label="Answer options">
     <button
       v-for="(option, index) in options"
       :key="option"
       type="button"
       class="opt"
       :class="stateOf(index)"
-      :disabled="!!result"
-      :aria-keyshortcuts="String(index + 1)"
+      :aria-keyshortcuts="result ? undefined : String(index + 1)"
       @click="emit('choose', index)"
     >
       <kbd class="keys">{{ index + 1 }}</kbd>

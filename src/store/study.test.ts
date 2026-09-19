@@ -1,8 +1,9 @@
 import {describe, expect, it} from "vitest"
 
+import {LIMITS} from "../domain/check"
 import {MINUTE} from "../domain/scheduler"
 import {STORAGE_KEY} from "../domain/storage"
-import {createStudy} from "./study"
+import {createStudy, DOUBLE_TAP_MS} from "./study"
 
 import type {Note} from "../domain/notes"
 import type {KeyValueStore} from "../domain/storage"
@@ -69,12 +70,12 @@ describe("answering by choice", () => {
     expect(study.state.session.result).toBeNull()
     study.choose(exercise.options.indexOf("делать"))
     expect(study.state.session.result).toBe("right")
-    expect(study.suggested.value).toBe(3)
+    expect(study.autoGrade.value).toBe(3)
     study.grade(3)
     expect(study.state.day.done[0]).toMatchObject({text: "делать", ok: true})
   })
 
-  it("suggests Again for a wrong option or a give-up", () => {
+  it("grades a wrong option or a give-up as Again", () => {
     const study = createStudy(
       [DO, MAKE, WALK],
       null,
@@ -84,10 +85,24 @@ describe("answering by choice", () => {
     const options = study.state.session.exercise!.options
     study.choose(options.findIndex((o) => o !== "делать"))
     expect(study.state.session.result).toBe("wrong")
-    expect(study.suggested.value).toBe(1)
+    expect(study.autoGrade.value).toBe(1)
     study.grade(1)
     study.giveUp()
-    expect(study.suggested.value).toBe(1)
+    expect(study.autoGrade.value).toBe(1)
+  })
+
+  it("moves on when an option is tapped again, but not on a double tap", () => {
+    const {study, advance} = setup()
+    study.updateSettings({answerMode: "choice"})
+    const options = study.state.session.exercise!.options
+    study.choose(options.indexOf("делать"))
+    advance(DOUBLE_TAP_MS - 1)
+    study.choose(0)
+    expect(study.current.value?.id).toBe("verb-do:en_ru")
+    advance(1)
+    study.choose(0)
+    expect(study.state.day.done[0]).toMatchObject({cardId: "verb-do:en_ru", grade: 3})
+    expect(study.current.value?.id).toBe("verb-make:en_ru")
   })
 
   it("switches the current question when the answer mode changes", () => {
@@ -109,7 +124,7 @@ describe("study session", () => {
     expect(study.current.value?.id).toBe("verb-do:en_ru")
     answerCurrent(study, "делать")
     expect(study.state.session.result).toBe("right")
-    expect(study.suggested.value).toBe(3)
+    expect(study.autoGrade.value).toBe(3)
     study.grade(3)
     const saved = JSON.parse(store.data.get(STORAGE_KEY)!)
     expect(saved.cards["verb-do:en_ru"]).toMatchObject({type: "learning", step: 1})
@@ -131,11 +146,33 @@ describe("study session", () => {
     expect(ruEn.state.session.answer).toBe("")
   })
 
-  it("suggests Again after peeking", () => {
+  it("grades a right answer by its time: Good, or Hard when slower than the limit", () => {
+    const {study, advance} = setup()
+    advance(LIMITS.type.slow)
+    answerCurrent(study, "делать")
+    expect(study.autoGrade.value).toBe(3)
+    study.next()
+    expect(study.state.day.done[0]).toMatchObject({cardId: "verb-do:en_ru", grade: 3})
+    advance(LIMITS.type.slow + 1)
+    answerCurrent(study, "делать")
+    expect(study.autoGrade.value).toBe(2)
+    expect(study.autoGradeReason.value).toBe("over 20 s")
+  })
+
+  it("does not count the time the page was hidden", () => {
+    const {study, advance} = setup()
+    advance(10 * MINUTE)
+    study.restartTimer()
+    advance(1000)
+    answerCurrent(study, "делать")
+    expect(study.autoGrade.value).toBe(3)
+  })
+
+  it("grades an answer after a peek as Again", () => {
     const {study} = setup()
     study.peek()
     answerCurrent(study, "делать")
-    expect(study.suggested.value).toBe(1)
+    expect(study.autoGrade.value).toBe(1)
   })
 
   it("restores progress in a new session and keeps it when words are added", () => {

@@ -2,14 +2,14 @@
 import {computed, nextTick, onMounted, ref, watch} from "vue"
 
 import {formatMinutes, plural} from "../domain/format"
-import {FIELD_LABEL, GRADE_LABEL, taskText} from "../domain/labels"
+import {FIELD_LABEL, taskText} from "../domain/labels"
 import {display} from "../domain/notes"
 import {remainingCount} from "../domain/queue"
 import {dayOf, MINUTE} from "../domain/scheduler"
 import {LEARN_MORE, PRACTICE_SIZE, useStudy} from "../store/study"
 import ChoiceOptions from "./ChoiceOptions.vue"
 import FormsRow from "./FormsRow.vue"
-import GradeButtons from "./GradeButtons.vue"
+import GradeResult from "./GradeResult.vue"
 
 const props = defineProps<{compact: boolean; tableVisible: boolean; blocked: boolean}>()
 const emit = defineEmits<{"toggle-table": []; "open-settings": []; "open-test": []}>()
@@ -226,7 +226,7 @@ onMounted(focusInput)
           >», but a different verb is asked here. Try again.
         </div>
         <div v-if="session.peeked && !session.result && !study.state.practice" class="msg" role="status">
-          You peeked at the table, so the check will suggest Again.
+          You peeked at the table, so this card gets Again.
         </div>
 
         <div v-if="!session.result && session.exercise.mode === 'choice'" class="hint">
@@ -243,20 +243,21 @@ onMounted(focusInput)
           <FormsRow :note="card.note" :exercise="session.exercise" />
           <div v-if="study.state.practice" class="hint">
             <button type="button" class="btn primary" @mousedown.prevent @click="study.practiceNext()">Next</button>
+            <span v-if="session.exercise.mode === 'choice'">or tap any option again</span>
             <span class="keys"><kbd>Enter</kbd> next</span>
             <button type="button" class="text-btn" @click="study.endPractice()">End practice</button>
           </div>
-          <GradeButtons
-            v-else-if="study.suggested.value"
-            :card="card"
-            :suggested="study.suggested.value"
-            :now="study.state.now"
-            @grade="study.grade"
-          />
-          <div v-if="!study.state.practice && study.suggested.value" class="hint keys">
-            <span><kbd>Enter</kbd> accept «{{ GRADE_LABEL[study.suggested.value] }}»</span>
-            <span><kbd>1</kbd>–<kbd>4</kbd> another grade</span>
-          </div>
+          <template v-else-if="study.autoGrade.value">
+            <div class="hint">
+              <GradeResult :card="card" :grade="study.autoGrade.value" :reason="study.autoGradeReason.value" :now="study.state.now" />
+              <button type="button" class="btn primary" @mousedown.prevent @click="study.next()">Next</button>
+            </div>
+            <div class="hint" :class="{keys: session.exercise.mode !== 'choice'}">
+              <span v-if="session.exercise.mode === 'choice'">Tap any option again to go on</span>
+              <span class="keys"><kbd>Enter</kbd> next</span>
+              <span class="keys"><kbd>1</kbd>–<kbd>4</kbd> change the grade</span>
+            </div>
+          </template>
         </div>
       </template>
     </div>

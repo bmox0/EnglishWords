@@ -1,4 +1,5 @@
 import {cardKinds} from "./cards"
+import {LIMITS} from "./check"
 import {buildOptions} from "./choices"
 import {dayOf, dayStart, freshState, SCHEDULER} from "./scheduler"
 
@@ -40,12 +41,6 @@ export const SKILLS: {key: Skill; label: string; given: Field; ask: Field; kind:
   {key: "v2", label: "V1 → V2", given: "v1", ask: "v2", kind: "forms"},
   {key: "v3", label: "V1 → V3", given: "v1", ask: "v3", kind: "forms"},
 ]
-
-/** A right answer within `fast` ms counts as known, one slower than `slow` as not known; typing gets more time. */
-export const LIMITS: Record<Exercise["mode"], {fast: number; slow: number}> = {
-  choice: {fast: 4000, slow: 12000},
-  type: {fast: 8000, slow: 20000},
-}
 
 const LEVEL_ORDER: Level[] = ["unknown", "shaky", "known"]
 
