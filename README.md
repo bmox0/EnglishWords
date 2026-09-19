@@ -43,6 +43,8 @@ The stopwatch button opens the test. Choose the skills (EN → RU, RU → EN, V1
 | Unsure | right but slower, or typed with a typo                      | review in 2–4 days              |
 | New    | wrong, "Don't know", or slower than 12 s (20 s when typing) | starts over as new              |
 
+**Quick look** runs just 6 questions across the chosen skills, to see how the test works.
+
 V1 → V2 and V1 → V3 both rate the forms card, which takes the worse result. **Apply to progress** replaces the state of every tested card. You can stop early and apply what you have answered.
 
 ## Progress
