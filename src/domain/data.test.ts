@@ -1,3 +1,4 @@
+import {readdirSync} from "node:fs"
 import {describe, expect, it} from "vitest"
 
 import {NOTES} from "./data"
@@ -6,6 +7,11 @@ import {parseNotes, validateNotes} from "./notes"
 describe("word data", () => {
   it("loads every data file", () => {
     expect(NOTES.length).toBeGreaterThanOrEqual(150)
+  })
+
+  it("names files <NN>-<set>.jsonl, so sets load in a stable order", () => {
+    const files = readdirSync("data").filter((f) => f.endsWith(".jsonl"))
+    expect(files.filter((f) => !/^\d{2}-[a-z0-9-]+\.jsonl$/.test(f))).toEqual([])
   })
 
   it("is valid: unique ids, required fields, form lists for verbs", () => {

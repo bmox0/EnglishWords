@@ -19,7 +19,7 @@ pnpm build           # static site in dist/
 - `src/components/`: `StudyPane` (left dictation), `VerbTable` (right table or phone sheet), `SettingsDialog`, `PlacementTest`, and small pieces.
 - `src/composables/`: `useTheme` (light/dark) and `useMediaQuery`.
 - `src/styles.css`: every style. Colour tokens live on `:root` and `:root.dark`.
-- `data/*.jsonl`: the words. Adding words goes through the `add-words` skill in `.claude/skills/`.
+- `data/<NN>-<set>.jsonl`: the words, loaded in number order. Adding words goes through the `add-words` skill in `.claude/skills/`.
 - `scripts/xlsx-to-jsonl.mjs`: the spreadsheet importer, with no dependencies.
 
 ## Invariants

@@ -53,7 +53,7 @@ Progress is stored per card id (`<word id>:<kind>`), so adding, reordering or re
 
 ## Adding words
 
-Words live in `data/*.jsonl`, one JSON object per line. Every file is loaded, in file-name order, and new words are introduced in that order. A new set can go into its own file, for example `data/phrasal-verbs.jsonl`.
+Words live in `data/<NN>-<set>.jsonl`, one JSON object per line, for example `data/01-150-verbs.jsonl`. Files load in number order and new words are introduced in that order, so a new set takes the next number (`data/02-phrasal-verbs.jsonl`). The set name doubles as the words' tag.
 
 <!-- prettier-ignore -->
 ```jsonl
