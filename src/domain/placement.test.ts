@@ -1,7 +1,7 @@
 import {describe, expect, it} from "vitest"
 
 import {NOTES} from "./data"
-import {buildPlacement, cardLevels, levelOf, LIMITS, notesFor, samplePlacement, seedState} from "./placement"
+import {buildPlacement, cardLevels, levelOf, LIMITS, notesFor, seedState} from "./placement"
 import {dayOf, dayStart} from "./scheduler"
 
 import type {PlacementAnswer} from "./placement"
@@ -40,14 +40,6 @@ describe("buildPlacement", () => {
       const correct = q.ask === "ru" ? note.ru.join(", ") : (note.v3 ?? []).join(" / ")
       expect(q.options).toContain(correct)
     }
-  })
-})
-
-describe("samplePlacement", () => {
-  it("takes a few questions from every chosen skill, keeping skills in order", () => {
-    const sample = samplePlacement(buildPlacement(NOTES, ["en_ru", "ru_en", "v2"], "irregular"), 6)
-    expect(sample.map((q) => q.skill)).toEqual(["en_ru", "en_ru", "ru_en", "ru_en", "v2", "v2"])
-    expect(samplePlacement(buildPlacement(NOTES.slice(0, 1), ["en_ru"], "irregular"), 6)).toHaveLength(1)
   })
 })
 

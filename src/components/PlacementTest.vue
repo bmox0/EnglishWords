@@ -5,7 +5,7 @@ import {checkAnswer} from "../domain/check"
 import {choiceChance} from "../domain/exercise"
 import {FIELD_LABEL, taskText} from "../domain/labels"
 import {display} from "../domain/notes"
-import {buildPlacement, cardLevels, kindOf, levelOf, LIMITS, notesFor, samplePlacement, SKILLS} from "../domain/placement"
+import {buildPlacement, cardLevels, kindOf, levelOf, LIMITS, notesFor, SKILLS} from "../domain/placement"
 import {useStudy} from "../store/study"
 import ChoiceOptions from "./ChoiceOptions.vue"
 
@@ -19,7 +19,6 @@ const open = defineModel<boolean>("open", {required: true})
 
 const SECONDS_PER_QUESTION: Record<Exercise["mode"], number> = {choice: 4, type: 8}
 const MIN_ANSWER_MS = 250
-const QUICK_LOOK = 6
 const MODE_TEXT = {
   auto: "about 40% picked from options and 60% typed, and a word you have not seen yet is always picked",
   type: "every answer is typed",
@@ -132,9 +131,8 @@ function focusInput() {
   nextTick(() => input.value?.focus({preventScroll: true}))
 }
 
-function start(limit?: number) {
-  const all = buildPlacement(study.notes, selected.value, study.state.settings.formsFor, modeOf)
-  questions.value = limit ? samplePlacement(all, limit) : all
+function start() {
+  questions.value = buildPlacement(study.notes, selected.value, study.state.settings.formsFor, modeOf)
   answers.value = []
   index.value = 0
   applied.value = null
@@ -268,10 +266,7 @@ onBeforeUnmount(() => {
           tested cards.
         </p>
         <div class="settings-actions">
-          <button type="button" class="btn primary" :disabled="!total" @click="start()">Start</button>
-          <button type="button" class="btn" :disabled="!total" @click="start(QUICK_LOOK)">
-            Quick look · {{ Math.min(QUICK_LOOK, total) }} questions
-          </button>
+          <button type="button" class="btn primary" :disabled="!total" @click="start">Start</button>
           <button type="button" class="btn" @click="close">Cancel</button>
         </div>
       </section>

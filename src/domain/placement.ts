@@ -86,20 +86,6 @@ export function buildPlacement(
   )
 }
 
-/** A short sample of a test: up to `limit` questions taken in turn from each skill, still grouped skill by skill. */
-export function samplePlacement(questions: PlacementQuestion[], limit: number): PlacementQuestion[] {
-  const groups = SKILLS.map((s) => questions.filter((q) => q.skill === s.key)).filter((g) => g.length)
-  const picked: PlacementQuestion[] = []
-  for (let i = 0; picked.length < limit && groups.some((g) => i < g.length); i++) {
-    for (const group of groups) {
-      const question = group[i]
-      if (question && picked.length < limit) picked.push(question)
-    }
-  }
-  const order = (q: PlacementQuestion) => SKILLS.findIndex((s) => s.key === q.skill)
-  return picked.sort((a, b) => order(a) - order(b))
-}
-
 /** Known if right and fast; shaky if right but slow or typed with a typo; unknown if wrong, skipped or very slow. */
 export function levelOf(answer: PlacementAnswer): Level {
   const {fast, slow} = LIMITS[answer.mode]
