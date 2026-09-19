@@ -35,6 +35,8 @@ const sub = computed(() => {
   return ""
 })
 
+const prompt = computed(() => (card.value && session.value.exercise ? display(card.value.note, session.value.exercise.given) : ""))
+
 const empty = computed(() => {
   const later = study.queue.value.later
   const first = later[0]
@@ -149,7 +151,7 @@ onMounted(focusInput)
           <span>{{ taskText(session.exercise) }}</span>
           <span>{{ remaining }} left</span>
         </div>
-        <h1 class="prompt" :lang="session.exercise.given === 'ru' ? 'ru' : 'en'">{{ display(card.note, session.exercise.given) }}</h1>
+        <h1 class="prompt" :lang="session.exercise.given === 'ru' ? 'ru' : 'en'" :style="{'--len': Math.max(6, prompt.length)}">{{ prompt }}</h1>
         <div v-if="sub" class="sub" :lang="session.exercise.given === 'v1' ? 'ru' : 'en'">{{ sub }}</div>
 
         <ChoiceOptions
