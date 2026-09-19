@@ -4,7 +4,7 @@ import {buildCards, groupByNote, stateOf} from "../domain/cards"
 import {checkAnswer, gradeAnswer, gradeReason} from "../domain/check"
 import {freshDay, rollDay} from "../domain/day"
 import {makeExercise, modeFor} from "../domain/exercise"
-import {seedState} from "../domain/placement"
+import {cardGrades, doneEntry} from "../domain/placement"
 import {buildQueue, pickNext} from "../domain/queue"
 import {display} from "../domain/notes"
 import {nextState} from "../domain/scheduler"
@@ -15,7 +15,7 @@ import type {Verdict} from "../domain/check"
 import type {DayProgress} from "../domain/day"
 import type {Exercise} from "../domain/exercise"
 import type {Note} from "../domain/notes"
-import type {Level} from "../domain/placement"
+import type {PlacementAnswer} from "../domain/placement"
 import type {CardState, Grade} from "../domain/scheduler"
 import type {KeyValueStore, Saved, Settings} from "../domain/storage"
 import type {InjectionKey} from "vue"
@@ -274,12 +274,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     if (!card || !exercise || !result || state.practice) return
     state.now = clock()
     state.day = rollDay(state.day, state.now)
-    if (card.type === "new") {
-      state.day.newDone++
-      if (!state.day.introduced.includes(card.note.id)) state.day.introduced.push(card.note.id)
-    }
-    if (card.type === "review") state.day.revDone++
-    Object.assign(card, nextState(stateOf(card), value, state.now, random))
+    schedule(card, value)
     state.day.done.push({
       cardId: card.id,
       noteId: card.note.id,
@@ -312,17 +307,32 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     ensureCurrent()
   }
 
-  /** Replaces the state of every tested card with the one its placement level gives; returns how many cards changed. */
-  function applyPlacement(levels: Map<string, Level>): number {
+  /** Moves a card on by one graded answer and counts it for today; study and placement answers both come through here. */
+  function schedule(card: Card, value: Grade) {
+    if (card.type === "new") {
+      state.day.newDone++
+      if (!state.day.introduced.includes(card.note.id)) state.day.introduced.push(card.note.id)
+    }
+    if (card.type === "review") state.day.revDone++
+    Object.assign(card, nextState(stateOf(card), value, state.now, random))
+  }
+
+  /**
+   * Adds placement answers to the history as if they were given on the cards: each tested card is graded once,
+   * and every answer shows up among today's answers; returns how many cards changed.
+   */
+  function applyPlacement(answers: PlacementAnswer[]): number {
     state.now = clock()
+    state.day = rollDay(state.day, state.now)
+    const grades = cardGrades(answers)
     let changed = 0
     for (const card of state.cards) {
-      const level = levels.get(card.id)
-      if (!level) continue
-      Object.assign(card, seedState(level, state.now, random))
-      if (card.type === "new") delete savedCards[card.id]
+      const value = grades.get(card.id)
+      if (!value) continue
+      schedule(card, value)
       changed++
     }
+    state.day.done.push(...answers.map(doneEntry))
     persist()
     state.session = freshSession()
     ensureCurrent()

@@ -2,12 +2,10 @@ import {describe, expect, it} from "vitest"
 
 import {NOTES} from "./data"
 import {LIMITS} from "./check"
-import {buildPlacement, cardLevels, levelOf, notesFor, seedState} from "./placement"
-import {dayOf, dayStart} from "./scheduler"
+import {buildPlacement, cardGrades, doneEntry, gradeOf, notesFor} from "./placement"
 
 import type {PlacementAnswer} from "./placement"
 
-const T = new Date(2026, 8, 19, 12, 0).getTime()
 const answer = (patch: Partial<PlacementAnswer>): PlacementAnswer => ({
   noteId: "verb-go",
   skill: "en_ru",
@@ -55,35 +53,45 @@ describe("buildPlacement", () => {
   })
 })
 
-describe("levels", () => {
-  it("rates by correctness and time, giving typing more time", () => {
-    expect(levelOf(answer({ms: LIMITS.choice.fast}))).toBe("known")
-    expect(levelOf(answer({ms: LIMITS.choice.fast + 1}))).toBe("shaky")
-    expect(levelOf(answer({ms: LIMITS.choice.slow + 1}))).toBe("unknown")
-    expect(levelOf(answer({verdict: "wrong", ms: 500}))).toBe("unknown")
-    expect(levelOf(answer({text: null, verdict: "wrong"}))).toBe("unknown")
-    expect(levelOf(answer({mode: "type", ms: LIMITS.choice.fast + 1}))).toBe("known")
-    expect(levelOf(answer({mode: "type", verdict: "close", ms: 1000}))).toBe("shaky")
+describe("grades", () => {
+  it("grades an answer the same way as on the card", () => {
+    expect(gradeOf(answer({ms: LIMITS.choice.slow}))).toBe(3)
+    expect(gradeOf(answer({ms: LIMITS.choice.slow + 1}))).toBe(2)
+    expect(gradeOf(answer({mode: "type", ms: LIMITS.choice.slow + 1}))).toBe(3)
+    expect(gradeOf(answer({mode: "type", verdict: "close", ms: 1000}))).toBe(2)
+    expect(gradeOf(answer({verdict: "wrong", ms: 500}))).toBe(1)
+    expect(gradeOf(answer({text: null, verdict: "wrong"}))).toBe(1)
   })
 
-  it("rates the forms card by the worse of V2 and V3", () => {
-    const levels = cardLevels([
+  it("grades the forms card once, by the worse of V2 and V3", () => {
+    const grades = cardGrades([
       answer({skill: "en_ru"}),
-      answer({skill: "v2", ms: 1000}),
-      answer({skill: "v3", ms: LIMITS.choice.fast + 500}),
+      answer({skill: "v2"}),
+      answer({skill: "v3", verdict: "close"}),
       answer({noteId: "verb-be", skill: "v2", verdict: "wrong"}),
       answer({noteId: "verb-be", skill: "v3"}),
     ])
-    expect(Object.fromEntries(levels)).toEqual({"verb-go:en_ru": "known", "verb-go:forms": "shaky", "verb-be:forms": "unknown"})
+    expect(Object.fromEntries(grades)).toEqual({"verb-go:en_ru": 3, "verb-go:forms": 2, "verb-be:forms": 1})
   })
-})
 
-describe("seedState", () => {
-  it("sends known cards 7–21 days out, shaky ones 2–4 days, and resets unknown ones", () => {
-    expect(seedState("known", T, () => 0)).toMatchObject({type: "review", ivl: 7, due: dayStart(dayOf(T) + 7), ease: 2.5})
-    expect(seedState("known", T, () => 0.999).ivl).toBe(21)
-    expect(seedState("shaky", T, () => 0)).toMatchObject({type: "review", ivl: 2, ease: 2.3})
-    expect(seedState("shaky", T, () => 0.999).ivl).toBe(4)
-    expect(seedState("unknown", T)).toMatchObject({type: "new", ivl: 0, reps: 0})
+  it("turns an answer into a line of today's history, like an answer on the card", () => {
+    expect(doneEntry(answer({skill: "v3", text: "gone"}))).toEqual({
+      cardId: "verb-go:forms",
+      noteId: "verb-go",
+      grade: 3,
+      given: "v1",
+      ask: "v3",
+      text: "gone",
+      ok: true,
+      mode: "choice",
+    })
+    expect(doneEntry(answer({skill: "ru_en", mode: "type", text: null, verdict: "wrong"}))).toMatchObject({
+      cardId: "verb-go:ru_en",
+      grade: 1,
+      given: "ru",
+      ask: "v1",
+      text: "",
+      ok: false,
+    })
   })
 })

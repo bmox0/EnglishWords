@@ -60,10 +60,10 @@ export function checkAnswer(note: Note, exercise: Pick<Exercise, "given" | "ask"
   return {kind: "verdict", verdict}
 }
 
-/** A right answer within `fast` ms is quick, one slower than `slow` is too slow; typing gets more time. */
-export const LIMITS: Record<Exercise["mode"], {fast: number; slow: number}> = {
-  choice: {fast: 4000, slow: 12000},
-  type: {fast: 8000, slow: 20000},
+/** A right answer slower than `slow` ms counts as hard; typing gets more time. */
+export const LIMITS: Record<Exercise["mode"], {slow: number}> = {
+  choice: {slow: 12000},
+  type: {slow: 20000},
 }
 
 /**

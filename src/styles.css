@@ -998,13 +998,13 @@ kbd {
   background: var(--ink);
   transition: width 0.15s ease-out;
 }
-.lv.known {
+.lv.g3 {
   color: var(--good);
 }
-.lv.shaky {
+.lv.g2 {
   color: var(--hard);
 }
-.lv.unknown {
+.lv.g1 {
   color: var(--again);
 }
 .test-summary {

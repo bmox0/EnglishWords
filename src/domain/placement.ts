@@ -1,19 +1,16 @@
 import {cardKinds} from "./cards"
-import {LIMITS} from "./check"
+import {gradeAnswer} from "./check"
 import {buildOptions} from "./choices"
-import {dayOf, dayStart, freshState, SCHEDULER} from "./scheduler"
 
 import type {CardKind} from "./cards"
 import type {Verdict} from "./check"
+import type {DoneEntry} from "./day"
 import type {Exercise} from "./exercise"
 import type {Field, Note} from "./notes"
-import type {CardState} from "./scheduler"
+import type {Grade} from "./scheduler"
 
 /** What a placement question checks. Both form skills feed the one forms card. */
 export type Skill = "en_ru" | "ru_en" | "v2" | "v3"
-
-/** How well a card is known after the test. */
-export type Level = "known" | "shaky" | "unknown"
 
 /** One placement question, answered by typing or by picking from `options`. */
 export interface PlacementQuestion {
@@ -41,8 +38,6 @@ export const SKILLS: {key: Skill; label: string; given: Field; ask: Field; kind:
   {key: "v2", label: "V1 → V2", given: "v1", ask: "v2", kind: "forms"},
   {key: "v3", label: "V1 → V3", given: "v1", ask: "v3", kind: "forms"},
 ]
-
-const LEVEL_ORDER: Level[] = ["unknown", "shaky", "known"]
 
 function shuffle<T>(items: T[], random: () => number): T[] {
   const out = [...items]
@@ -84,32 +79,33 @@ export function buildPlacement(
   )
 }
 
-/** Known if right and fast; shaky if right but slow or typed with a typo; unknown if wrong, skipped or very slow. */
-export function levelOf(answer: PlacementAnswer): Level {
-  const {fast, slow} = LIMITS[answer.mode]
-  if (answer.verdict === "wrong" || answer.ms > slow) return "unknown"
-  return answer.verdict === "right" && answer.ms <= fast ? "known" : "shaky"
+/** The grade an answer gets, the same as for an answer on the card. */
+export function gradeOf(answer: PlacementAnswer): Grade {
+  return gradeAnswer(answer.verdict, false, answer.mode, answer.ms)
 }
 
-/** The level of every tested card by card id; the forms card takes the worse of V2 and V3. */
-export function cardLevels(answers: PlacementAnswer[]): Map<string, Level> {
-  const levels = new Map<string, Level>()
+/** The grade for every tested card by card id; the forms card takes the worse of V2 and V3, so it is graded once. */
+export function cardGrades(answers: PlacementAnswer[]): Map<string, Grade> {
+  const grades = new Map<string, Grade>()
   for (const answer of answers) {
     const id = `${answer.noteId}:${kindOf(answer.skill)}`
-    const level = levelOf(answer)
-    const previous = levels.get(id)
-    if (!previous || LEVEL_ORDER.indexOf(level) < LEVEL_ORDER.indexOf(previous)) levels.set(id, level)
+    const grade = gradeOf(answer)
+    grades.set(id, Math.min(grades.get(id) ?? grade, grade) as Grade)
   }
-  return levels
+  return grades
 }
 
-/**
- * The starting state for a tested card. Known cards go to review in 7–21 days and shaky ones in 2–4 days,
- * spread at random so they do not all come due on the same day; unknown cards start over as new.
- */
-export function seedState(level: Level, t: number, random: () => number = Math.random): CardState {
-  if (level === "unknown") return freshState()
-  const [from, span, ease] = level === "known" ? [7, 15, SCHEDULER.startEase] : [2, 3, SCHEDULER.startEase - 0.2]
-  const ivl = from + Math.floor(random() * span)
-  return {type: "review", step: 0, due: dayStart(dayOf(t) + ivl), ivl, ease, reps: 1, lapses: 0}
+/** The answer as a line of today's history, the same as an answer given on the card. */
+export function doneEntry(answer: PlacementAnswer): DoneEntry {
+  const skill = SKILLS.find((s) => s.key === answer.skill) ?? SKILLS[0]!
+  return {
+    cardId: `${answer.noteId}:${skill.kind}`,
+    noteId: answer.noteId,
+    grade: gradeOf(answer),
+    given: skill.given,
+    ask: skill.ask,
+    text: answer.text ?? "",
+    ok: answer.verdict === "right",
+    mode: answer.mode,
+  }
 }

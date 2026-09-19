@@ -10,7 +10,7 @@ Learn English verbs by typing them: the translation in both directions and the p
 - **Verb table.** The table shows every verb with its forms, translation and progress. It has search and filters: All, Today, Mistakes, Learning, New, Learned. The verb on the card is hidden; you can peek, but then the card gets Again.
 - **Anki scheduling.** Each verb has separate cards that open one by one: EN → RU, then RU → EN, then forms, for every verb.
 - **Mixed answers.** About 40% of answers are picked from four options and 60% are typed, balanced over the day. The wrong options are easy to confuse with the right one: other forms of the same verb, the `-ed` guess (`goed`), words spelled alike.
-- **Placement test.** It checks what you already know, so study time goes to the rest.
+- **Placement test.** Go through a whole topic in one run. The saved answers count like answers on the cards.
 - **After the daily plan.** **Learn 10 more cards** raises today's new-card limit. **Practice mistakes** drills up to 20 cards you got wrong without changing when they come back.
 - **Anywhere.** Works on a phone (the table becomes a full-screen sheet) and has a light and a dark theme.
 - **No account.** Progress stays in your browser and can be exported to a file.
@@ -37,15 +37,9 @@ Cards follow Anki's v3 defaults: learning steps of 1 and 10 minutes, then 1 day 
 
 ## Placement test
 
-The stopwatch button opens the test. Choose the skills (EN → RU, RU → EN, V1 → V2, V1 → V3), and every word is asked once. The next question comes right away, without feedback. Questions follow **Settings → Answers**.
+The stopwatch button opens the test. Choose the skills (EN → RU, RU → EN, V1 → V2, V1 → V3) and how many words each skill takes: all, 100, 50 or 20 from the top of the list. The next question comes right away, without feedback. Questions follow **Settings → Answers**.
 
-| Result | Rule                                                        | What happens to the card        |
-| ------ | ----------------------------------------------------------- | ------------------------------- |
-| Known  | right within 4 s (8 s when typing)                          | review in 7–21 days, spread out |
-| Unsure | right but slower, or typed with a typo                      | review in 2–4 days              |
-| New    | wrong, "Don't know", or slower than 12 s (20 s when typing) | starts over as new              |
-
-V1 → V2 and V1 → V3 both rate the forms card, which takes the worse result. **Apply to progress** replaces the state of every tested card. You can stop early and apply what you have answered.
+The test is not a separate mode: it is a fast way to answer many cards at once. **Save answers** adds every answer to the history, the same as an answer on the card. Each answer gets the automatic grade (Good, Hard or Again), the card moves on by the scheduler, and the answer shows up under **Today** in the table. V1 → V2 and V1 → V3 both answer the forms card, which is graded once by the worse of the two. You can stop early and save what you have answered.
 
 ## Progress
 

@@ -1,11 +1,13 @@
 import {describe, expect, it} from "vitest"
 
 import {LIMITS} from "../domain/check"
-import {MINUTE} from "../domain/scheduler"
+import {stateOf} from "../domain/cards"
+import {freshState, MINUTE, nextState} from "../domain/scheduler"
 import {STORAGE_KEY} from "../domain/storage"
 import {createStudy, DOUBLE_TAP_MS} from "./study"
 
 import type {Note} from "../domain/notes"
+import type {PlacementAnswer} from "../domain/placement"
 import type {KeyValueStore} from "../domain/storage"
 
 const T = new Date(2026, 8, 19, 12, 0).getTime()
@@ -29,6 +31,15 @@ function setup(notes = [DO, MAKE, WALK], store = memoryStore()) {
   study.updateSettings({answerMode: "type"})
   return {study, store, advance: (ms: number) => (now += ms)}
 }
+
+const placed = (noteId: string, skill: PlacementAnswer["skill"], verdict: PlacementAnswer["verdict"]): PlacementAnswer => ({
+  noteId,
+  skill,
+  mode: "choice",
+  text: verdict === "wrong" ? null : "x",
+  verdict,
+  ms: 1000,
+})
 
 function answerCurrent(study: ReturnType<typeof createStudy>, text: string) {
   study.setAnswer(text)
@@ -253,23 +264,33 @@ describe("study session", () => {
     expect(saved.settings.newPerDay).toBe(5)
   })
 
-  it("applies placement results, resetting unknown cards and scheduling known ones", () => {
-    const {study, store} = setup()
+  it("adds placement answers to the history exactly like answers on the cards", () => {
+    const {study, store, advance} = setup()
     answerCurrent(study, "делать")
     study.grade(4)
-    const changed = study.applyPlacement(
-      new Map([
-        ["verb-do:en_ru", "unknown"],
-        ["verb-make:en_ru", "known"],
-        ["verb-walk:ru_en", "shaky"],
-      ]),
-    )
+    const reviewed = stateOf(study.state.cards.find((c) => c.id === "verb-do:en_ru")!)
+    advance(MINUTE)
+    const t = T + MINUTE
+    const changed = study.applyPlacement([
+      placed("verb-do", "en_ru", "wrong"),
+      placed("verb-make", "en_ru", "right"),
+      placed("verb-walk", "v2", "right"),
+      placed("verb-walk", "v3", "close"),
+    ])
     expect(changed).toBe(3)
     const saved = JSON.parse(store.data.get(STORAGE_KEY)!)
-    expect(saved.cards["verb-do:en_ru"]).toBeUndefined()
-    expect(saved.cards["verb-make:en_ru"]).toMatchObject({type: "review", ivl: 7})
-    expect(saved.cards["verb-walk:ru_en"]).toMatchObject({type: "review", ivl: 2})
-    expect(study.current.value?.id).toBe("verb-make:ru_en")
+    expect(saved.cards["verb-do:en_ru"]).toEqual(nextState(reviewed, 1, t))
+    expect(saved.cards["verb-make:en_ru"]).toEqual(nextState(freshState(), 3, t))
+    expect(saved.cards["verb-walk:forms"]).toEqual(nextState(freshState(), 2, t))
+    expect(saved.day.done.slice(1).map((d: {cardId: string; grade: number; ok: boolean}) => [d.cardId, d.grade, d.ok])).toEqual([
+      ["verb-do:en_ru", 1, false],
+      ["verb-make:en_ru", 3, true],
+      ["verb-walk:forms", 3, true],
+      ["verb-walk:forms", 2, false],
+    ])
+    expect(saved.day).toMatchObject({newDone: 3, revDone: 1})
+    expect(study.mistakeIds.value).toContain("verb-do:en_ru")
+    expect(study.today.value.get("verb-walk")?.entries).toHaveLength(2)
   })
 
   it("learns more new cards after the daily limit is used up", () => {

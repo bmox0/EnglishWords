@@ -3,9 +3,9 @@ import {computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef} from "v
 
 import {checkAnswer, LIMITS} from "../domain/check"
 import {choiceChance} from "../domain/exercise"
-import {FIELD_LABEL, taskText} from "../domain/labels"
+import {FIELD_LABEL, GRADE_LABEL, taskText} from "../domain/labels"
 import {display} from "../domain/notes"
-import {buildPlacement, cardLevels, kindOf, levelOf, notesFor, SKILLS} from "../domain/placement"
+import {buildPlacement, gradeOf, kindOf, notesFor, SKILLS} from "../domain/placement"
 import {useStudy} from "../store/study"
 import ChoiceOptions from "./ChoiceOptions.vue"
 
@@ -13,7 +13,8 @@ import type {CardKind} from "../domain/cards"
 import type {Verdict} from "../domain/check"
 import type {Exercise} from "../domain/exercise"
 import type {Note} from "../domain/notes"
-import type {Level, PlacementAnswer, PlacementQuestion, Skill} from "../domain/placement"
+import type {PlacementAnswer, PlacementQuestion, Skill} from "../domain/placement"
+import type {Grade} from "../domain/scheduler"
 
 const open = defineModel<boolean>("open", {required: true})
 
@@ -82,24 +83,19 @@ const summary = computed(() =>
   SKILLS.flatMap((s) => {
     const list = answers.value.filter((a) => a.skill === s.key)
     if (!list.length) return []
-    const count = (level: Level) => list.filter((a) => levelOf(a) === level).length
+    const count = (grade: Grade) => list.filter((a) => gradeOf(a) === grade).length
     const times = list
       .filter((a) => a.verdict !== "wrong")
       .map((a) => a.ms)
       .sort((a, b) => a - b)
     const median = times.length ? `${((times[Math.floor(times.length / 2)] ?? 0) / 1000).toFixed(1)} s` : "—"
-    return [{label: s.label, asked: list.length, known: count("known"), shaky: count("shaky"), unknown: count("unknown"), median}]
+    return [{label: s.label, asked: list.length, good: count(3), hard: count(2), again: count(1), median}]
   }),
 )
 
-const LEVELS: {key: Level; label: string}[] = [
-  {key: "unknown", label: "New"},
-  {key: "shaky", label: "Unsure"},
-  {key: "known", label: "Known"},
-]
-const LEVEL_LABEL = Object.fromEntries(LEVELS.map((l) => [l.key, l.label])) as Record<Level, string>
+const GRADES: Grade[] = [1, 2, 3]
 
-const answerFilter = ref<Level | "all">("all")
+const answerFilter = ref<Grade | "all">("all")
 
 const answerRows = computed(() =>
   answers.value
@@ -107,7 +103,7 @@ const answerRows = computed(() =>
       const n = notesById.value.get(a.noteId)
       const s = SKILLS.find((x) => x.key === a.skill)
       if (!n || !s) return []
-      const level = levelOf(a)
+      const grade = gradeOf(a)
       return [
         {
           key: `${a.noteId}:${a.skill}`,
@@ -118,17 +114,17 @@ const answerRows = computed(() =>
           text: a.text,
           verdict: a.verdict,
           ms: a.ms,
-          level,
+          grade,
         },
       ]
     })
-    .sort((a, b) => LEVELS.findIndex((l) => l.key === a.level) - LEVELS.findIndex((l) => l.key === b.level) || a.order - b.order),
+    .sort((a, b) => a.grade - b.grade || a.order - b.order),
 )
 
-const levelCounts = computed(
-  () => Object.fromEntries(LEVELS.map((l) => [l.key, answerRows.value.filter((r) => r.level === l.key).length])) as Record<Level, number>,
+const gradeCounts = computed(
+  () => Object.fromEntries(GRADES.map((g) => [g, answerRows.value.filter((r) => r.grade === g).length])) as Record<Grade, number>,
 )
-const shownRows = computed(() => (answerFilter.value === "all" ? answerRows.value : answerRows.value.filter((r) => r.level === answerFilter.value)))
+const shownRows = computed(() => (answerFilter.value === "all" ? answerRows.value : answerRows.value.filter((r) => r.grade === answerFilter.value)))
 
 function answerClass(row: {text: string | null; verdict: Verdict}): string {
   if (row.text === null) return "muted"
@@ -190,7 +186,7 @@ function finish() {
 }
 
 function apply() {
-  applied.value = study.applyPlacement(cardLevels(answers.value))
+  applied.value = study.applyPlacement(answers.value)
 }
 
 function close() {
@@ -245,19 +241,16 @@ onBeforeUnmount(() => {
       </div>
 
       <section v-if="stage === 'intro'" class="test-section">
-        <p class="test-lead">Find out which verbs you already know, so study time goes to the rest.</p>
+        <p class="test-lead">Go through a whole topic in one run. Saved answers count like answers on the cards, and study goes on from them.</p>
         <ul class="test-rules">
           <li>Answer as fast as you can. The next question comes right away, with no feedback.</li>
           <li>Questions follow Settings → Answers: {{ MODE_TEXT[study.state.settings.answerMode] }}.</li>
+          <li><b class="lv g3">Good</b> — right.</li>
           <li>
-            <b class="lv known">Known</b> — right in under {{ LIMITS.choice.fast / 1000 }} s ({{ LIMITS.type.fast / 1000 }} s when typing): first
-            review in 1–3 weeks.
+            <b class="lv g2">Hard</b> — typed with a typo, or right but over {{ LIMITS.choice.slow / 1000 }} s ({{ LIMITS.type.slow / 1000 }} s when
+            typing).
           </li>
-          <li><b class="lv shaky">Unsure</b> — right but slower, or typed with a typo: review in 2–4 days.</li>
-          <li>
-            <b class="lv unknown">New</b> — wrong, Don't know, or over {{ LIMITS.choice.slow / 1000 }} s ({{ LIMITS.type.slow / 1000 }} s when
-            typing): learned from scratch.
-          </li>
+          <li><b class="lv g1">Again</b> — wrong or Don't know: the card comes back in a minute.</li>
         </ul>
 
         <fieldset class="skill-picks">
@@ -290,7 +283,7 @@ onBeforeUnmount(() => {
         <p class="msg">
           {{ total }} questions, about {{ minutes }} min.
           <template v-if="limit !== null">Each skill takes the first {{ limit }} words of the list.</template>
-          You can stop at any time and keep what you answered. The results replace the progress of the tested cards.
+          You can stop at any time and keep what you answered.
         </p>
         <div class="settings-actions">
           <button type="button" class="btn primary" :disabled="!total" @click="start">Start</button>
@@ -362,9 +355,9 @@ onBeforeUnmount(() => {
             <tr>
               <th>Skill</th>
               <th>Asked</th>
-              <th class="lv known">Known</th>
-              <th class="lv shaky">Unsure</th>
-              <th class="lv unknown">New</th>
+              <th class="lv g3">Good</th>
+              <th class="lv g2">Hard</th>
+              <th class="lv g1">Again</th>
               <th>Median</th>
             </tr>
           </thead>
@@ -372,20 +365,20 @@ onBeforeUnmount(() => {
             <tr v-for="row in summary" :key="row.label">
               <td>{{ row.label }}</td>
               <td>{{ row.asked }}</td>
-              <td>{{ row.known }}</td>
-              <td>{{ row.shaky }}</td>
-              <td>{{ row.unknown }}</td>
+              <td>{{ row.good }}</td>
+              <td>{{ row.hard }}</td>
+              <td>{{ row.again }}</td>
               <td>{{ row.median }}</td>
             </tr>
           </tbody>
         </table>
 
         <div v-if="applied === null" class="settings-actions">
-          <button type="button" class="btn primary" @click="apply">Apply to progress</button>
+          <button type="button" class="btn primary" @click="apply">Save answers</button>
           <button type="button" class="btn" @click="close">Discard</button>
         </div>
         <div v-else class="settings-actions" role="status">
-          <span class="muted">{{ applied }} cards updated.</span>
+          <span class="muted">{{ applied }} cards updated. The answers are in the table under Today.</span>
           <button type="button" class="btn primary" @click="close">Start studying</button>
         </div>
 
@@ -401,15 +394,15 @@ onBeforeUnmount(() => {
             All <b>{{ answerRows.length }}</b>
           </button>
           <button
-            v-for="l in LEVELS"
-            :key="l.key"
+            v-for="g in GRADES"
+            :key="g"
             type="button"
             class="chip"
-            :class="{on: answerFilter === l.key}"
-            :aria-pressed="answerFilter === l.key"
-            @click="answerFilter = l.key"
+            :class="{on: answerFilter === g}"
+            :aria-pressed="answerFilter === g"
+            @click="answerFilter = g"
           >
-            {{ l.label }} <b>{{ levelCounts[l.key] }}</b>
+            {{ GRADE_LABEL[g] }} <b>{{ gradeCounts[g] }}</b>
           </button>
         </div>
         <table v-if="shownRows.length" class="cards-of test-answers">
@@ -429,7 +422,7 @@ onBeforeUnmount(() => {
               <td>{{ row.answer }}</td>
               <td :class="answerClass(row)">{{ row.text ?? "don't know" }}</td>
               <td>
-                <span class="lv" :class="row.level">{{ LEVEL_LABEL[row.level] }}</span>
+                <span class="lv" :class="`g${row.grade}`">{{ GRADE_LABEL[row.grade] }}</span>
                 <span class="test-skill">{{ (row.ms / 1000).toFixed(1) }} s</span>
               </td>
             </tr>
