@@ -11,8 +11,10 @@
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "prettier --write src data/*.jsonl README.md",
-    "check": "pnpm typecheck && pnpm test"
+    "format": "prettier --write src scripts README.md CLAUDE.md .claude",
+    "check": "pnpm typecheck && pnpm test",
+    "words:check": "vitest run src/domain/data.test.ts",
+    "words:import": "node scripts/xlsx-to-jsonl.mjs"
   },
   "dependencies": {
     "vue": "^3.5.43"
