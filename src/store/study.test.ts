@@ -25,6 +25,7 @@ function setup(notes = [DO, MAKE, WALK], store = memoryStore()) {
     () => now,
     () => 0,
   )
+  study.updateSettings({answerMode: "type"})
   return {study, store, advance: (ms: number) => (now += ms)}
 }
 
@@ -32,6 +33,56 @@ function answerCurrent(study: ReturnType<typeof createStudy>, text: string) {
   study.setAnswer(text)
   study.check()
 }
+
+describe("answering by choice", () => {
+  it("offers options for a new card in auto mode and types from the second step", () => {
+    const study = createStudy(
+      [DO, MAKE, WALK],
+      null,
+      () => T,
+      () => 0,
+    )
+    const exercise = study.state.session.exercise!
+    expect(exercise.mode).toBe("choice")
+    expect(exercise.options).toContain("делать")
+    study.setAnswer("делать")
+    study.check()
+    expect(study.state.session.result).toBeNull()
+    study.choose(exercise.options.indexOf("делать"))
+    expect(study.state.session.result).toBe("right")
+    expect(study.suggested.value).toBe(3)
+    study.grade(3)
+    expect(study.state.day.done[0]).toMatchObject({text: "делать", ok: true})
+  })
+
+  it("suggests Again for a wrong option or a give-up", () => {
+    const study = createStudy(
+      [DO, MAKE, WALK],
+      null,
+      () => T,
+      () => 0,
+    )
+    const options = study.state.session.exercise!.options
+    study.choose(options.findIndex((o) => o !== "делать"))
+    expect(study.state.session.result).toBe("wrong")
+    expect(study.suggested.value).toBe(1)
+    study.grade(1)
+    study.giveUp()
+    expect(study.suggested.value).toBe(1)
+  })
+
+  it("switches the current question when the answer mode changes", () => {
+    const study = createStudy(
+      [DO, WALK],
+      null,
+      () => T,
+      () => 0,
+    )
+    const cardId = study.state.session.cardId
+    study.updateSettings({answerMode: "type"})
+    expect(study.state.session).toMatchObject({cardId, exercise: {mode: "type", options: []}})
+  })
+})
 
 describe("study session", () => {
   it("starts with the first new card and saves progress after grading", () => {
@@ -54,7 +105,7 @@ describe("study session", () => {
       () => T,
       () => 0,
     )
-    ruEn.state.session.exercise = {given: "ru", ask: "v1"}
+    ruEn.state.session.exercise = {given: "ru", ask: "v1", mode: "type", options: []}
     answerCurrent(ruEn, "make")
     expect(ruEn.state.session.result).toBeNull()
     expect(ruEn.state.session.other?.en).toBe("make")

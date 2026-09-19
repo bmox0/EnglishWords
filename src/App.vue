@@ -40,6 +40,13 @@ function onKeydown(event: KeyboardEvent) {
     }
     return
   }
+  if (study.state.session.exercise?.mode === "choice") {
+    if (["1", "2", "3", "4"].includes(event.key)) {
+      event.preventDefault()
+      study.choose(Number(event.key) - 1)
+    }
+    return
+  }
   if (event.key === "Enter" && target.matches("[data-answer]")) {
     event.preventDefault()
     study.check()

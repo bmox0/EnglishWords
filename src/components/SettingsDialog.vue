@@ -4,6 +4,7 @@ import {ref, watch} from "vue"
 import {useStudy} from "../store/study"
 
 import type {FormsFor} from "../domain/cards"
+import type {AnswerMode} from "../domain/exercise"
 
 const open = defineModel<boolean>("open", {required: true})
 
@@ -21,6 +22,16 @@ watch(open, (value) => {
 function onNewPerDay(event: Event) {
   const value = Number((event.target as HTMLInputElement).value)
   if (Number.isFinite(value)) study.updateSettings({newPerDay: Math.min(500, Math.max(0, Math.round(value)))})
+}
+
+const ANSWER_MODES: {value: AnswerMode; label: string}[] = [
+  {value: "auto", label: "Choose while learning, type on reviews"},
+  {value: "type", label: "Always type"},
+  {value: "choice", label: "Always choose"},
+]
+
+function onAnswerMode(value: AnswerMode) {
+  study.updateSettings({answerMode: value})
 }
 
 function onFormsFor(value: FormsFor) {
@@ -62,6 +73,14 @@ function reset() {
         <span>New cards per day</span>
         <input type="number" min="0" max="500" inputmode="numeric" :value="study.state.settings.newPerDay" @change="onNewPerDay" />
       </label>
+
+      <fieldset class="setting">
+        <legend>Answers</legend>
+        <label v-for="mode in ANSWER_MODES" :key="mode.value">
+          <input type="radio" name="answers" :checked="study.state.settings.answerMode === mode.value" @change="onAnswerMode(mode.value)" />
+          {{ mode.label }}
+        </label>
+      </fieldset>
 
       <fieldset class="setting">
         <legend>Forms cards</legend>

@@ -7,6 +7,7 @@ import {display} from "../domain/notes"
 import {remainingCount} from "../domain/queue"
 import {dayOf, MINUTE} from "../domain/scheduler"
 import {useStudy} from "../store/study"
+import ChoiceOptions from "./ChoiceOptions.vue"
 import FormsRow from "./FormsRow.vue"
 import GradeButtons from "./GradeButtons.vue"
 
@@ -151,7 +152,16 @@ onMounted(focusInput)
         <h1 class="prompt" :lang="session.exercise.given === 'ru' ? 'ru' : 'en'">{{ display(card.note, session.exercise.given) }}</h1>
         <div v-if="sub" class="sub" :lang="session.exercise.given === 'v1' ? 'ru' : 'en'">{{ sub }}</div>
 
-        <div class="fields">
+        <ChoiceOptions
+          v-if="session.exercise.mode === 'choice'"
+          :options="session.exercise.options"
+          :correct="display(card.note, session.exercise.ask)"
+          :chosen="session.chosen"
+          :result="session.result"
+          :lang="session.exercise.ask === 'ru' ? 'ru' : 'en'"
+          @choose="study.choose"
+        />
+        <div v-else class="fields">
           <div class="field" :class="session.result">
             <input
               ref="input"
@@ -180,7 +190,11 @@ onMounted(focusInput)
         </div>
         <div v-if="session.peeked && !session.result" class="msg" role="status">You peeked at the table, so the check will suggest Again.</div>
 
-        <div v-if="!session.result" class="hint">
+        <div v-if="!session.result && session.exercise.mode === 'choice'" class="hint">
+          <span class="keys"><kbd>1</kbd>–<kbd>4</kbd> pick an answer</span>
+          <button type="button" class="text-btn" @click="study.giveUp()">Don't know</button>
+        </div>
+        <div v-else-if="!session.result" class="hint">
           <button type="button" class="check-btn" @mousedown.prevent @click="study.check()">Check</button>
           <span class="keys"><kbd>Enter</kbd> check</span>
           <span>Leave it empty if you don't remember</span>

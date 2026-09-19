@@ -3,8 +3,9 @@ import {computed, inject, markRaw, reactive} from "vue"
 import {buildCards, groupByNote, stateOf} from "../domain/cards"
 import {checkAnswer, suggestGrade} from "../domain/check"
 import {freshDay, rollDay} from "../domain/day"
-import {makeExercise} from "../domain/exercise"
+import {makeExercise, modeFor} from "../domain/exercise"
 import {buildQueue, pickNext} from "../domain/queue"
+import {display} from "../domain/notes"
 import {nextState} from "../domain/scheduler"
 import {loadSaved, parseSaved, writeSaved} from "../domain/storage"
 
@@ -23,6 +24,7 @@ export interface Session {
   exercise: Exercise | null
   answer: string
   result: Verdict | null
+  chosen: number | null
   other: Note | null
   peeked: boolean
 }
@@ -34,7 +36,7 @@ export interface TodayInfo {
   last: Grade
 }
 
-const freshSession = (): Session => ({cardId: null, exercise: null, answer: "", result: null, other: null, peeked: false})
+const freshSession = (): Session => ({cardId: null, exercise: null, answer: "", result: null, chosen: null, other: null, peeked: false})
 
 /** Creates the study state: cards, today's queue, the current question, and persistence to `store`. */
 export function createStudy(notes: Note[], store: KeyValueStore | null, clock: () => number = Date.now, random: () => number = Math.random) {
@@ -79,13 +81,15 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     state.storageOk = writeSaved(store, snapshot())
   }
 
-  function ensureCurrent() {
-    if (current.value) return
-    const card = pickNext(queue.value, state.day)
+  function start(card: Card | null) {
     state.session = freshSession()
     if (!card) return
     state.session.cardId = card.id
-    state.session.exercise = makeExercise(card, random)
+    state.session.exercise = makeExercise(card, modeFor(card, state.settings.answerMode), allNotes, random)
+  }
+
+  function ensureCurrent() {
+    if (!current.value) start(pickNext(queue.value, state.day))
   }
 
   function apply(saved: Saved) {
@@ -121,7 +125,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
   function check() {
     const card = current.value
     const exercise = state.session.exercise
-    if (!card || !exercise || state.session.result) return
+    if (!card || exercise?.mode !== "type" || state.session.result) return
     const result = checkAnswer(card.note, exercise, state.session.answer, allNotes)
     if (result.kind === "other") {
       state.session.other = result.other
@@ -130,6 +134,21 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     }
     state.session.other = null
     state.session.result = result.verdict
+  }
+
+  /** Answers a choice question with the option at `index`. */
+  function choose(index: number) {
+    const card = current.value
+    const exercise = state.session.exercise
+    const option = exercise?.options[index]
+    if (!card || exercise?.mode !== "choice" || option === undefined || state.session.result) return
+    state.session.chosen = index
+    state.session.result = option === display(card.note, exercise.ask) ? "right" : "wrong"
+  }
+
+  /** Gives up on a choice question without guessing. */
+  function giveUp() {
+    if (current.value && state.session.exercise?.mode === "choice" && !state.session.result) state.session.result = "wrong"
   }
 
   /** Records the grade for the checked card, saves progress and moves to the next card. */
@@ -152,7 +171,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
       grade: value,
       given: exercise.given,
       ask: exercise.ask,
-      text: state.session.answer,
+      text: exercise.mode === "choice" ? (exercise.options[state.session.chosen ?? -1] ?? "") : state.session.answer,
       ok: result === "right",
     })
     persist()
@@ -175,6 +194,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     state.settings = {...state.settings, ...patch}
     if (formsChanged) state.cards = buildCards(allNotes, state.settings.formsFor, savedCards)
     persist()
+    if (patch.answerMode && current.value && !state.session.result) start(current.value)
     ensureCurrent()
   }
 
@@ -224,6 +244,8 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     tick,
     setAnswer,
     check,
+    choose,
+    giveUp,
     grade,
     peek,
     setTableOpen,

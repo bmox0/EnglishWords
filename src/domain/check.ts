@@ -44,7 +44,7 @@ export function gradeWord(answer: string, valid: string[]): Verdict {
 }
 
 /** Checks a typed answer; several variants may be typed separated by "/" or "," and all of them must be correct. */
-export function checkAnswer(note: Note, exercise: Exercise, answer: string, notes: Note[]): CheckResult {
+export function checkAnswer(note: Note, exercise: Pick<Exercise, "given" | "ask">, answer: string, notes: Note[]): CheckResult {
   if (exercise.given === "ru" && exercise.ask === "v1") {
     const typed = normalize(answer)
     const other = notes.find((o) => o.id !== note.id && normalize(o.en) === typed && o.ru.some((r) => note.ru.includes(r)))
