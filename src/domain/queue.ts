@@ -1,3 +1,4 @@
+import {groupByNote, isUnlocked} from "./cards"
 import {dayOf, MINUTE, SCHEDULER} from "./scheduler"
 
 import type {Card} from "./cards"
@@ -12,29 +13,31 @@ export interface Queue {
   news: Card[]
 }
 
-/** Gathers today's queue: learning cards by due time, then reviews and new cards within the daily limits, one card per note. */
+const isLearning = (card: Card) => card.type === "learning" || card.type === "relearning"
+
+/**
+ * Gathers today's queue. Reviews of every card are due on their day, siblings included.
+ * New cards fill the daily limit: first siblings that just unlocked (RU → EN, then forms), then EN → RU of new words.
+ * A note gets at most one new card a day, and none while one of its cards is in learning.
+ */
 export function buildQueue(cards: Card[], day: DayProgress, t: number, newPerDay: number): Queue {
   const byDue = (a: Card, b: Card) => a.due - b.due
   const aheadLimit = t + SCHEDULER.learnAheadMin * MINUTE
-  const learning = cards.filter((c) => c.type === "learning" || c.type === "relearning").sort(byDue)
-  const seen = new Set(day.touched)
-  learning.forEach((c) => seen.add(c.note.id))
+  const siblings = groupByNote(cards)
+  const learning = cards.filter(isLearning).sort(byDue)
 
-  const reviews: Card[] = []
-  const reviewRoom = SCHEDULER.reviewsPerDay - day.revDone
-  for (const c of cards.filter((x) => x.type === "review" && dayOf(x.due) <= day.index).sort(byDue)) {
-    if (reviews.length >= reviewRoom) break
-    if (seen.has(c.note.id)) continue
-    seen.add(c.note.id)
-    reviews.push(c)
-  }
+  const reviews = cards
+    .filter((c) => c.type === "review" && dayOf(c.due) <= day.index)
+    .sort(byDue)
+    .slice(0, Math.max(0, SCHEDULER.reviewsPerDay - day.revDone))
 
+  const blocked = new Set([...day.introduced, ...learning.map((c) => c.note.id)])
+  const candidates = cards.filter((c) => c.type === "new" && !blocked.has(c.note.id) && isUnlocked(c, siblings.get(c.note.id) ?? []))
   const news: Card[] = []
-  const newRoom = newPerDay - day.newDone
-  for (const c of cards) {
-    if (news.length >= newRoom) break
-    if (c.type !== "new" || seen.has(c.note.id)) continue
-    seen.add(c.note.id)
+  for (const c of [...candidates.filter((x) => x.kind !== "en_ru"), ...candidates.filter((x) => x.kind === "en_ru")]) {
+    if (news.length >= newPerDay - day.newDone) break
+    if (blocked.has(c.note.id)) continue
+    blocked.add(c.note.id)
     news.push(c)
   }
 
@@ -47,17 +50,18 @@ export function buildQueue(cards: Card[], day: DayProgress, t: number, newPerDay
   }
 }
 
-/** The next card to show: due learning cards first, then reviews and new cards mixed evenly, then learning cards due soon. */
+/**
+ * The next card: due learning cards first, then reviews and new cards mixed evenly, then learning cards due soon.
+ * A card of the note that was just answered is skipped while anything else is available, so siblings never come back to back.
+ */
 export function pickNext(queue: Queue, day: DayProgress): Card | null {
-  if (queue.learnDue[0]) return queue.learnDue[0]
+  const last = day.done.at(-1)?.noteId
   const r = queue.reviews.length
   const n = queue.news.length
-  if (r && n) {
-    const newShare = day.newDone / (day.newDone + n)
-    const reviewShare = day.revDone / (day.revDone + r)
-    return (newShare < reviewShare ? queue.news[0] : queue.reviews[0]) ?? null
-  }
-  return queue.reviews[0] ?? queue.news[0] ?? queue.learnAhead[0] ?? null
+  const newFirst = r && n ? day.newDone / (day.newDone + n) < day.revDone / (day.revDone + r) : !r
+  const middle = newFirst ? [...queue.news, ...queue.reviews] : [...queue.reviews, ...queue.news]
+  const order = [...queue.learnDue, ...middle, ...queue.learnAhead]
+  return order.find((c) => c.note.id !== last) ?? order[0] ?? null
 }
 
 /** Cards still to answer today. */

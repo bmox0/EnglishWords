@@ -1,11 +1,14 @@
 import {describe, expect, it} from "vitest"
 
-import {buildCards, cardKinds} from "./cards"
+import {buildCards, cardKinds, isUnlocked} from "./cards"
 import {freshDay} from "./day"
 import {buildQueue, pickNext} from "./queue"
-import {dayOf, dayStart, MINUTE} from "./scheduler"
+import {dayOf, dayStart, freshState, MINUTE} from "./scheduler"
 
+import type {Card} from "./cards"
+import type {DayProgress} from "./day"
 import type {Note} from "./notes"
+import type {CardState} from "./scheduler"
 
 const T = new Date(2026, 8, 19, 12, 0).getTime()
 const verb = (en: string, irregular: boolean): Note => ({
@@ -19,6 +22,13 @@ const verb = (en: string, irregular: boolean): Note => ({
   tags: [],
 })
 const NOTES = [verb("go", true), verb("walk", false), verb("see", true), verb("play", false)]
+const review = (ivl: number, due = dayStart(dayOf(T))): CardState => ({...freshState(), type: "review", ivl, due, reps: 2})
+const learning = (due: number, ivl = 0): CardState => ({...freshState(), type: ivl ? "relearning" : "learning", step: 0, due, ivl, reps: 1})
+const ids = (cards: Card[]) => cards.map((c) => c.id)
+const answered = (noteId: string): DayProgress => ({
+  ...freshDay(T),
+  done: [{cardId: `${noteId}:en_ru`, noteId, grade: 3, given: "v1", ask: "ru", text: "", ok: true}],
+})
 
 describe("cards", () => {
   it("gives forms cards to irregular verbs only, unless asked for all", () => {
@@ -29,54 +39,61 @@ describe("cards", () => {
   })
 
   it("restores progress by card id when notes are added in front", () => {
-    const saved = {"verb-walk:en_ru": {type: "review" as const, step: 0, due: 1, ivl: 5, ease: 2.5, reps: 4, lapses: 0}}
-    const cards = buildCards([verb("new", true), ...NOTES], "irregular", saved)
+    const cards = buildCards([verb("new", true), ...NOTES], "irregular", {"verb-walk:en_ru": review(5)})
     expect(cards.find((c) => c.id === "verb-walk:en_ru")).toMatchObject({type: "review", ivl: 5})
     expect(cards.find((c) => c.id === "verb-new:en_ru")).toMatchObject({type: "new"})
+  })
+
+  it("unlocks RU → EN after EN → RU graduates, and forms after RU → EN", () => {
+    const fresh = buildCards(NOTES.slice(0, 1), "irregular", {})
+    expect(fresh.map((c) => isUnlocked(c, fresh))).toEqual([true, false, false])
+    const stepOne = buildCards(NOTES.slice(0, 1), "irregular", {"verb-go:en_ru": learning(T)})
+    expect(stepOne.map((c) => isUnlocked(c, stepOne))).toEqual([true, false, false])
+    const graduated = buildCards(NOTES.slice(0, 1), "irregular", {"verb-go:en_ru": review(1)})
+    expect(graduated.map((c) => isUnlocked(c, graduated))).toEqual([true, true, false])
+    const lapsed = buildCards(NOTES.slice(0, 1), "irregular", {"verb-go:en_ru": learning(T, 1), "verb-go:ru_en": review(3)})
+    expect(lapsed.map((c) => isUnlocked(c, lapsed))).toEqual([true, true, true])
   })
 })
 
 describe("queue", () => {
-  it("takes one new card per note and respects the daily limit", () => {
+  it("starts every new word with EN → RU and respects the daily limit", () => {
     const cards = buildCards(NOTES, "irregular", {})
-    expect(buildQueue(cards, freshDay(T), T, 20).news.map((c) => c.id)).toEqual([
-      "verb-go:en_ru",
-      "verb-walk:en_ru",
-      "verb-see:en_ru",
-      "verb-play:en_ru",
-    ])
+    expect(ids(buildQueue(cards, freshDay(T), T, 20).news)).toEqual(["verb-go:en_ru", "verb-walk:en_ru", "verb-see:en_ru", "verb-play:en_ru"])
     expect(buildQueue(cards, {...freshDay(T), newDone: 18}, T, 20).news).toHaveLength(2)
   })
 
-  it("buries siblings of notes answered today or still in learning", () => {
-    const cards = buildCards(NOTES, "irregular", {
-      "verb-go:en_ru": {type: "learning", step: 1, due: T + 10 * MINUTE, ivl: 0, ease: 2.5, reps: 1, lapses: 0},
-    })
-    const day = {...freshDay(T), touched: ["verb-walk"]}
-    const q = buildQueue(cards, day, T, 20)
-    expect(q.news.map((c) => c.note.id)).toEqual(["verb-see", "verb-play"])
-    expect(q.learnAhead.map((c) => c.id)).toEqual(["verb-go:en_ru"])
+  it("puts unlocked siblings before new words and still shows the sibling's review the same day", () => {
+    const cards = buildCards(NOTES, "irregular", {"verb-see:en_ru": review(1), "verb-see:ru_en": review(3, dayStart(dayOf(T) + 2))})
+    const q = buildQueue(cards, freshDay(T), T, 3)
+    expect(ids(q.news)).toEqual(["verb-see:forms", "verb-go:en_ru", "verb-walk:en_ru"])
+    expect(ids(q.reviews)).toEqual(["verb-see:en_ru"])
   })
 
-  it("shows due learning cards first and learning cards due soon last", () => {
+  it("gives a note at most one new card a day and none while it is in learning", () => {
     const cards = buildCards(NOTES, "irregular", {
-      "verb-go:en_ru": {type: "learning", step: 0, due: T - MINUTE, ivl: 0, ease: 2.5, reps: 1, lapses: 0},
-      "verb-see:en_ru": {type: "review", step: 0, due: dayStart(dayOf(T)), ivl: 3, ease: 2.5, reps: 3, lapses: 0},
+      "verb-go:en_ru": review(1),
+      "verb-walk:en_ru": review(1),
+      "verb-see:en_ru": learning(T + MINUTE, 2),
     })
-    const day = freshDay(T)
-    expect(pickNext(buildQueue(cards, day, T, 20), day)?.id).toBe("verb-go:en_ru")
-    expect(pickNext(buildQueue(cards, day, T, 0), day)?.id).toBe("verb-go:en_ru")
-    const onlySoon = buildCards(NOTES.slice(0, 1), "irregular", {
-      "verb-go:en_ru": {type: "learning", step: 1, due: T + 5 * MINUTE, ivl: 0, ease: 2.5, reps: 1, lapses: 0},
-    })
-    expect(pickNext(buildQueue(onlySoon, day, T, 0), day)?.id).toBe("verb-go:en_ru")
+    const q = buildQueue(cards, {...freshDay(T), introduced: ["verb-go"]}, T, 20)
+    expect(ids(q.news)).toEqual(["verb-walk:ru_en", "verb-play:en_ru"])
   })
 
-  it("leaves learning cards due in more than 20 minutes for later", () => {
-    const cards = buildCards(NOTES.slice(0, 1), "irregular", {
-      "verb-go:en_ru": {type: "learning", step: 1, due: T + 30 * MINUTE, ivl: 0, ease: 2.5, reps: 1, lapses: 0},
-    })
-    const q = buildQueue(cards, freshDay(T), T, 0)
+  it("never shows two cards of the same word back to back when something else is available", () => {
+    const cards = buildCards(NOTES, "irregular", {"verb-go:en_ru": learning(T - MINUTE), "verb-walk:en_ru": learning(T - 30_000)})
+    const q = buildQueue(cards, freshDay(T), T, 20)
+    expect(pickNext(q, freshDay(T))?.id).toBe("verb-go:en_ru")
+    expect(pickNext(q, answered("verb-go"))?.id).toBe("verb-walk:en_ru")
+    const alone = buildCards(NOTES.slice(0, 1), "irregular", {"verb-go:en_ru": learning(T - MINUTE)})
+    expect(pickNext(buildQueue(alone, freshDay(T), T, 20), answered("verb-go"))?.id).toBe("verb-go:en_ru")
+  })
+
+  it("shows learning cards due soon last and leaves those due in more than 20 minutes for later", () => {
+    const soon = buildCards(NOTES.slice(0, 1), "irregular", {"verb-go:en_ru": learning(T + 5 * MINUTE)})
+    expect(pickNext(buildQueue(soon, freshDay(T), T, 0), freshDay(T))?.id).toBe("verb-go:en_ru")
+    const later = buildCards(NOTES.slice(0, 1), "irregular", {"verb-go:en_ru": learning(T + 30 * MINUTE)})
+    const q = buildQueue(later, freshDay(T), T, 0)
     expect(q.later).toHaveLength(1)
     expect(pickNext(q, freshDay(T))).toBeNull()
   })

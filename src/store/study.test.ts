@@ -99,6 +99,20 @@ describe("study session", () => {
     expect(Object.keys(saved.cards).sort()).toEqual(["verb-do:en_ru", "verb-make:en_ru"])
   })
 
+  it("opens RU → EN the day after EN → RU is learned", () => {
+    const {study, advance} = setup([DO, WALK])
+    expect(study.current.value?.id).toBe("verb-do:en_ru")
+    answerCurrent(study, "делать")
+    study.grade(4)
+    expect(study.current.value?.id).toBe("verb-walk:en_ru")
+    answerCurrent(study, "гулять")
+    study.grade(4)
+    expect(study.current.value).toBeNull()
+    advance(24 * 60 * MINUTE)
+    study.tick()
+    expect(study.queue.value.news.map((c) => c.id)).toEqual(["verb-do:ru_en", "verb-walk:ru_en"])
+  })
+
   it("rolls the day over at 4:00", () => {
     const {study, advance} = setup()
     answerCurrent(study, "делать")

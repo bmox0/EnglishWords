@@ -45,7 +45,7 @@ const empty = computed(() => {
   }
   const tomorrow = study.state.cards.filter((c) => c.type === "review" && dayOf(c.due) === study.state.day.index + 1).length
   const hasNew = study.state.cards.some((c) => c.type === "new")
-  const text = tomorrow ? `Tomorrow: ${plural(tomorrow, "review")}.` : hasNew ? "New words come tomorrow." : "Nothing is due tomorrow."
+  const text = tomorrow ? `Tomorrow: ${plural(tomorrow, "review")}.` : hasNew ? "More new cards open tomorrow." : "Nothing is due tomorrow."
   return {title: "All done for today", text}
 })
 

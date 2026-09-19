@@ -1,6 +1,6 @@
 import {computed, inject, markRaw, reactive} from "vue"
 
-import {buildCards, stateOf} from "../domain/cards"
+import {buildCards, groupByNote, stateOf} from "../domain/cards"
 import {checkAnswer, suggestGrade} from "../domain/check"
 import {freshDay, rollDay} from "../domain/day"
 import {makeExercise} from "../domain/exercise"
@@ -56,15 +56,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
   const current = computed(() => (state.session.cardId ? (state.cards.find((c) => c.id === state.session.cardId) ?? null) : null))
   const suggested = computed(() => (state.session.result ? suggestGrade(state.session.result, state.session.peeked) : null))
 
-  const cardsByNote = computed(() => {
-    const map = new Map<string, Card[]>()
-    for (const card of state.cards) {
-      const list = map.get(card.note.id)
-      if (list) list.push(card)
-      else map.set(card.note.id, [card])
-    }
-    return map
-  })
+  const cardsByNote = computed(() => groupByNote(state.cards))
 
   const today = computed(() => {
     const map = new Map<string, TodayInfo>()
@@ -148,10 +140,12 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     if (!card || !exercise || !result) return
     state.now = clock()
     state.day = rollDay(state.day, state.now)
-    if (card.type === "new") state.day.newDone++
+    if (card.type === "new") {
+      state.day.newDone++
+      if (!state.day.introduced.includes(card.note.id)) state.day.introduced.push(card.note.id)
+    }
     if (card.type === "review") state.day.revDone++
     Object.assign(card, nextState(stateOf(card), value, state.now, random))
-    if (!state.day.touched.includes(card.note.id)) state.day.touched.push(card.note.id)
     state.day.done.push({
       cardId: card.id,
       noteId: card.note.id,

@@ -43,7 +43,9 @@ Words live in `data/*.jsonl`, one JSON object per line. Every file in `data/` is
 | `hint`      | no       | Shown next to the Russian prompt to tell apart words with the same translation (`do` / `make`).                   |
 | `tags`      | yes      | Free-form labels; may be empty.                                                                                   |
 
-Each word gets an EN → RU card and an RU → EN card; verbs with forms also get a forms card that asks one random form each time. Words without `v2`/`v3` (nouns, adjectives) only get the two translation cards.
+Each word has an EN → RU card and an RU → EN card; verbs with forms also get a forms card that asks one random form each time. Words without `v2`/`v3` (nouns, adjectives) only get the two translation cards.
+
+The cards of a word open one by one: a new word starts with EN → RU, RU → EN opens the day after EN → RU is learned, and forms open the day after RU → EN. Opened cards take the daily new-card limit before new words do. Each card keeps its own SM-2 interval, and cards of the same word never come back to back.
 
 `pnpm test` validates every data file (JSON, required fields, unique ids), and the deploy runs the tests first, so a broken line never reaches the site.
 

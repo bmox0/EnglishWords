@@ -14,18 +14,18 @@ export interface DoneEntry {
   ok: boolean
 }
 
-/** Today's counters: limits, sibling burying and the answers log reset when the day changes. */
+/** Today's counters: the limits, the notes that got a new card today and the answers log reset when the day changes. */
 export interface DayProgress {
   index: number
   newDone: number
   revDone: number
-  touched: string[]
+  introduced: string[]
   done: DoneEntry[]
 }
 
 /** An empty day for the given timestamp. */
 export function freshDay(t: number): DayProgress {
-  return {index: dayOf(t), newDone: 0, revDone: 0, touched: [], done: []}
+  return {index: dayOf(t), newDone: 0, revDone: 0, introduced: [], done: []}
 }
 
 /** The same progress if `t` is still the same day, otherwise a fresh day. */

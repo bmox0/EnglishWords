@@ -36,6 +36,37 @@ export function buildCards(notes: Note[], formsFor: FormsFor, saved: Record<stri
   )
 }
 
+const PREREQUISITE: Record<CardKind, CardKind | null> = {en_ru: null, ru_en: "en_ru", forms: "ru_en"}
+
+/** The sibling that must be learned before this kind opens: RU → EN waits for EN → RU, forms wait for RU → EN. */
+export function prerequisiteOf(kind: CardKind): CardKind | null {
+  return PREREQUISITE[kind]
+}
+
+/** Whether a card has left the learning steps at least once; relearning keeps its interval, so it still counts. */
+export function hasGraduated(card: CardState): boolean {
+  return card.ivl > 0
+}
+
+/** Whether a card can be shown: a new card stays locked until its prerequisite sibling has graduated. */
+export function isUnlocked(card: Card, siblings: Card[]): boolean {
+  if (card.type !== "new") return true
+  const kind = prerequisiteOf(card.kind)
+  const prerequisite = kind && siblings.find((c) => c.kind === kind)
+  return !prerequisite || hasGraduated(prerequisite)
+}
+
+/** Cards grouped by note id. */
+export function groupByNote(cards: Card[]): Map<string, Card[]> {
+  const map = new Map<string, Card[]>()
+  for (const card of cards) {
+    const list = map.get(card.note.id)
+    if (list) list.push(card)
+    else map.set(card.note.id, [card])
+  }
+  return map
+}
+
 /** The saveable part of a card. */
 export function stateOf(card: Card): CardState {
   const {type, step, due, ivl, ease, reps, lapses} = card
