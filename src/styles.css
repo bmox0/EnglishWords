@@ -18,7 +18,7 @@
   --mature: #23794d;
   --thumb: rgba(27, 34, 51, 0.16);
   --thumb-hover: rgba(27, 34, 51, 0.34);
-  --mono: "Victor Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --mono: "Roboto Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --display: var(--mono);
   --ui: var(--mono);
   color-scheme: light;
