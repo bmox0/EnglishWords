@@ -11,7 +11,7 @@
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "prettier --write src scripts README.md CLAUDE.md .claude",
+    "format": "prettier --write src scripts README.md CLAUDE.md .claude/skills",
     "check": "pnpm typecheck && pnpm test",
     "words:check": "vitest run src/domain/data.test.ts",
     "words:import": "node scripts/xlsx-to-jsonl.mjs"
