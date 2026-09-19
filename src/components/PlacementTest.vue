@@ -19,6 +19,7 @@ const open = defineModel<boolean>("open", {required: true})
 const SECONDS_PER_QUESTION: Record<AnswerMode, number> = {choice: 4, type: 8, both: 6}
 const WORD_COUNTS = [100, 50, 20]
 const MIN_ANSWER_MS = 250
+const UNDO_LIMIT = 3
 const MODE_TEXT: Record<AnswerMode, string> = {
   both: "type the answer or pick one of the four options below the field",
   type: "every answer is typed",
@@ -33,6 +34,7 @@ const questions = shallowRef<PlacementQuestion[]>([])
 const answers = ref<PlacementAnswer[]>([])
 const index = ref(0)
 const applied = ref<number | null>(null)
+const undosLeft = ref(UNDO_LIMIT)
 const typed = ref("")
 const other = ref<Note | null>(null)
 const input = ref<HTMLInputElement | null>(null)
@@ -117,6 +119,7 @@ function start() {
   answers.value = []
   index.value = 0
   applied.value = null
+  undosLeft.value = UNDO_LIMIT
   answerFilter.value = "all"
   typed.value = ""
   other.value = null
@@ -156,6 +159,19 @@ function submitTyped() {
     return
   }
   record(typed.value.trim() || null, result.verdict, "type")
+}
+
+/** Takes back the last answer and asks that question again, for a misclick; a run allows three. */
+function undo() {
+  if (!undosLeft.value || !answers.value.length || applied.value !== null) return
+  answers.value.pop()
+  index.value = answers.value.length
+  undosLeft.value--
+  typed.value = ""
+  other.value = null
+  stage.value = "run"
+  shownAt = performance.now()
+  if (question.value?.mode !== "choice") focusInput()
 }
 
 function finish() {
@@ -318,6 +334,7 @@ onBeforeUnmount(() => {
           <span class="keys"><kbd>1</kbd>–<kbd>4</kbd> pick</span>
           <button type="button" class="text-btn" @click="choose(null)">Don't know</button>
           <span class="keys"><kbd>0</kbd></span>
+          <button type="button" class="text-btn" :disabled="!undosLeft || !index" @click="undo">Back ({{ undosLeft }} left)</button>
           <button type="button" class="text-btn" @click="finish">Finish now</button>
         </div>
         <div v-else class="hint">
@@ -325,6 +342,7 @@ onBeforeUnmount(() => {
           <span class="keys"><kbd>Enter</kbd> next</span>
           <span v-if="question.mode === 'both'" class="keys"><kbd>1</kbd>–<kbd>4</kbd> pick</span>
           <span>Empty means don't know</span>
+          <button type="button" class="text-btn" :disabled="!undosLeft || !index" @click="undo">Back ({{ undosLeft }} left)</button>
           <button type="button" class="text-btn" @click="finish">Finish now</button>
         </div>
       </section>
@@ -355,6 +373,7 @@ onBeforeUnmount(() => {
 
         <div v-if="applied === null" class="settings-actions">
           <button type="button" class="btn primary" @click="apply">Save answers</button>
+          <button v-if="undosLeft" type="button" class="btn" @click="undo">Back to the last question</button>
           <button type="button" class="btn" @click="close">Discard</button>
         </div>
         <div v-else class="settings-actions" role="status">

@@ -422,8 +422,12 @@ kbd {
   text-underline-offset: 3px;
   cursor: pointer;
 }
-.text-btn:hover {
+.text-btn:hover:not(:disabled) {
   color: var(--ink);
+}
+.text-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 .opts {
   display: grid;
