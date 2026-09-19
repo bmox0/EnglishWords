@@ -239,6 +239,7 @@ kbd {
   display: flex;
   gap: 8px;
   flex: none;
+  margin-left: auto;
 }
 .side-toggle,
 .icon-btn {
@@ -278,7 +279,16 @@ kbd {
   padding-top: 11px;
 }
 .track.wide {
-  grid-template-columns: repeat(20, 11px);
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 398px;
+  grid-template-columns: repeat(40, minmax(0, 1fr));
+  gap: 2px;
+}
+.track.wide i {
+  width: auto;
+  height: auto;
+  aspect-ratio: 1;
 }
 .track i {
   width: 11px;
@@ -1150,12 +1160,14 @@ fieldset.setting {
     gap: 2px;
     padding-top: 12px;
   }
-  .track.wide {
-    grid-template-columns: repeat(20, 6px);
+  .work-top {
+    flex-wrap: wrap;
   }
-  .track.wide i {
-    width: 6px;
-    height: 6px;
+  .track.wide {
+    order: 2;
+    flex-basis: 100%;
+    max-width: none;
+    padding-top: 0;
   }
   .track i {
     width: 8px;
