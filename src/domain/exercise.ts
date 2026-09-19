@@ -2,9 +2,8 @@ import {buildOptions} from "./choices"
 
 import type {Card} from "./cards"
 import type {Field, Note} from "./notes"
-import type {CardState} from "./scheduler"
 
-/** How answers are given: always typed, always picked from options, or picked while learning and typed on reviews. */
+/** How answers are given: always typed, always picked from options, or picked only for a brand-new word and typed otherwise. */
 export type AnswerMode = "auto" | "type" | "choice"
 
 /** One question: what is shown, what is asked, and the options when it is answered by choosing. */
@@ -24,12 +23,10 @@ const FORMS_FIELDS: [Field, Field][] = [
   ["ru", "v3"],
 ]
 
-/** In auto mode a card is answered by choosing when it is new or was just failed, and by typing from the second learning step on. */
-export function modeFor(card: CardState, setting: AnswerMode): Exercise["mode"] {
+/** In auto mode only the first look at a brand-new word (its new EN → RU card) is picked from options; everything else is typed. */
+export function modeFor(card: Pick<Card, "type" | "kind">, setting: AnswerMode): Exercise["mode"] {
   if (setting !== "auto") return setting
-  if (card.type === "review") return "type"
-  if (card.type === "learning" && card.step > 0) return "type"
-  return "choice"
+  return card.type === "new" && card.kind === "en_ru" ? "choice" : "type"
 }
 
 function fieldsFor(card: Card, random: () => number): [Field, Field] {

@@ -3,7 +3,6 @@ import {describe, expect, it} from "vitest"
 import {buildOptions, regularPast} from "./choices"
 import {NOTES} from "./data"
 import {modeFor} from "./exercise"
-import {freshState} from "./scheduler"
 
 const note = (id: string) => NOTES.find((n) => n.id === id)!
 const seeded = (seed: number) => () => {
@@ -52,13 +51,17 @@ describe("buildOptions", () => {
 })
 
 describe("modeFor", () => {
-  it("chooses while learning and types on reviews in auto mode", () => {
-    expect(modeFor(freshState(), "auto")).toBe("choice")
-    expect(modeFor({...freshState(), type: "learning", step: 1}, "auto")).toBe("type")
-    expect(modeFor({...freshState(), type: "learning", step: 0}, "auto")).toBe("choice")
-    expect(modeFor({...freshState(), type: "relearning", ivl: 3}, "auto")).toBe("choice")
-    expect(modeFor({...freshState(), type: "review", ivl: 3}, "auto")).toBe("type")
-    expect(modeFor({...freshState(), type: "review", ivl: 3}, "choice")).toBe("choice")
-    expect(modeFor(freshState(), "type")).toBe("type")
+  it("in auto mode picks only for the first look at a new word and types everything else", () => {
+    expect(modeFor({type: "new", kind: "en_ru"}, "auto")).toBe("choice")
+    expect(modeFor({type: "new", kind: "ru_en"}, "auto")).toBe("type")
+    expect(modeFor({type: "new", kind: "forms"}, "auto")).toBe("type")
+    expect(modeFor({type: "learning", kind: "en_ru"}, "auto")).toBe("type")
+    expect(modeFor({type: "relearning", kind: "en_ru"}, "auto")).toBe("type")
+    expect(modeFor({type: "review", kind: "en_ru"}, "auto")).toBe("type")
+  })
+
+  it("follows a fixed setting", () => {
+    expect(modeFor({type: "review", kind: "ru_en"}, "choice")).toBe("choice")
+    expect(modeFor({type: "new", kind: "en_ru"}, "type")).toBe("type")
   })
 })

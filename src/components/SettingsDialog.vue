@@ -25,7 +25,7 @@ function onNewPerDay(event: Event) {
 }
 
 const ANSWER_MODES: {value: AnswerMode; label: string}[] = [
-  {value: "auto", label: "Choose while learning, type on reviews"},
+  {value: "auto", label: "Choose for a new word, type the rest"},
   {value: "type", label: "Always type"},
   {value: "choice", label: "Always choose"},
 ]

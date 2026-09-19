@@ -20,7 +20,7 @@ const open = defineModel<boolean>("open", {required: true})
 const SECONDS_PER_QUESTION: Record<Exercise["mode"], number> = {choice: 4, type: 8}
 const MIN_ANSWER_MS = 250
 const MODE_TEXT = {
-  auto: "choose for cards you are learning, type for cards on review",
+  auto: "choose for words you have not seen yet, type the rest",
   type: "every answer is typed",
   choice: "every answer is picked from four options",
 } as const

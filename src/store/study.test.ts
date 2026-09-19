@@ -35,7 +35,26 @@ function answerCurrent(study: ReturnType<typeof createStudy>, text: string) {
 }
 
 describe("answering by choice", () => {
-  it("offers options for a new card in auto mode and types from the second step", () => {
+  it("types a word after its first look, even after a mistake", () => {
+    const study = createStudy(
+      [DO, WALK],
+      null,
+      () => T,
+      () => 0,
+    )
+    const first = study.state.session.exercise!
+    expect(first.mode).toBe("choice")
+    study.choose(first.options.findIndex((o) => o !== "делать"))
+    study.grade(1)
+    expect(study.current.value?.id).toBe("verb-walk:en_ru")
+    expect(study.state.session.exercise?.mode).toBe("choice")
+    study.giveUp()
+    study.grade(1)
+    expect(study.current.value?.id).toBe("verb-do:en_ru")
+    expect(study.state.session.exercise).toMatchObject({mode: "type", options: []})
+  })
+
+  it("offers options for a brand-new word in auto mode", () => {
     const study = createStudy(
       [DO, MAKE, WALK],
       null,
