@@ -12,7 +12,7 @@ import VerbDetail from "./VerbDetail.vue"
 import type {Card} from "../domain/cards"
 import type {Note} from "../domain/notes"
 
-const props = defineProps<{compact: boolean}>()
+defineProps<{compact: boolean}>()
 const emit = defineEmits<{close: []}>()
 
 type FilterKey = "all" | "today" | "mistakes" | "learning" | "new" | "learned"
@@ -23,8 +23,6 @@ const filter = ref<FilterKey>("all")
 const selected = ref<string | null>(null)
 const root = ref<HTMLElement | null>(null)
 const top = ref<HTMLElement | null>(null)
-
-const columns = computed(() => (props.compact ? 4 : 5))
 
 const cardsOf = (note: Note): Card[] => study.cardsByNote.value.get(note.id) ?? []
 
@@ -137,7 +135,6 @@ onBeforeUnmount(() => observer?.disconnect())
           <th>Infinitive</th>
           <th>Past simple</th>
           <th>Past participle</th>
-          <th v-if="!compact">Translation</th>
           <th><span class="sr">Progress</span></th>
         </tr>
       </thead>
@@ -151,7 +148,7 @@ onBeforeUnmount(() => observer?.disconnect())
             @click="study.peek()"
             @keydown.enter.prevent="study.peek()"
           >
-            <td :colspan="columns">On the card now — tap to peek</td>
+            <td colspan="4">On the card now — tap to peek</td>
           </tr>
           <template v-else>
             <tr
@@ -164,17 +161,16 @@ onBeforeUnmount(() => observer?.disconnect())
             >
               <td class="w" lang="en">
                 <i v-if="todayDot(note)" class="dot" :class="`g${todayDot(note)?.grade}`" :title="todayDot(note)?.title" />{{ note.en }}
-                <span v-if="compact" class="ru-inline" lang="ru">{{ display(note, "ru") }}</span>
+                <span class="ru-inline" lang="ru">{{ display(note, "ru") }}</span>
               </td>
               <td class="w" :class="{reg: !note.irregular}" lang="en">{{ note.v2 ? display(note, "v2") : "—" }}</td>
               <td class="w" :class="{reg: !note.irregular}" lang="en">{{ note.v3 ? display(note, "v3") : "—" }}</td>
-              <td v-if="!compact" class="ru" lang="ru">{{ display(note, "ru") }}</td>
               <td>
                 <span class="segs" :title="segsTitle(note)"><i v-for="card in cardsOf(note)" :key="card.id" :class="maturity(card)" /></span>
               </td>
             </tr>
             <tr v-if="selected === note.id" class="detail">
-              <td :colspan="columns"><VerbDetail :note="note" /></td>
+              <td colspan="4"><VerbDetail :note="note" /></td>
             </tr>
           </template>
         </template>
