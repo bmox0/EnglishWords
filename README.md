@@ -1,73 +1,93 @@
 # English Verbs
 
-Learn English verbs by typing: the translation both ways and the past forms, scheduled with Anki's SM-2 algorithm.
+Learn English verbs by typing them: the translation in both directions and the past forms, spaced out with Anki's SM-2 algorithm.
 
 **Live:** https://bmox0.github.io/EnglishWords/
 
-- Left: a dictation. Each question asks one thing — the translation, the infinitive, or one past form. Press Enter to check, then Enter again to accept the suggested grade (or 1–4 for another one).
-- Right: the verb table with search, filters and per-verb progress. The verb on the card is hidden; clicking it lets you peek, and the grade offered becomes Again.
-- By default answers are mixed: about 40% are picked from four options and 60% are typed, balanced over the day. The first look at a brand-new word is always picked. **Settings → Answers** switches to always typing or always choosing. Wrong options are words that are easy to mix up: other forms of the same verb, the `-ed` guess (`goed`), similar spellings; a word with the same translation is never offered.
-- **Settings → Theme** switches between light and dark with a diagonal wipe. The theme follows the system until you pick one, and remembers the choice.
-- On a phone the table opens as a full-screen sheet from the **Table** button.
+## Features
+
+- **Dictation.** Each question asks one thing: a translation, the infinitive, or one past form. You type the answer or pick it from four options. Typos count as "almost", and a verb that shares the translation (`make` for делать) gets another try instead of a miss.
+- **Verb table.** The table shows every verb with its forms, translation and progress. It has search and filters: All, Today, Mistakes, Learning, New, Learned. The verb on the card is hidden; you can peek, but then the grade offered is Again.
+- **Anki scheduling.** Each verb has separate cards that open one by one: EN → RU, then RU → EN, then forms (irregular verbs only by default).
+- **Mixed answers.** About 40% of answers are picked from four options and 60% are typed, balanced over the day. The wrong options are easy to confuse with the right one: other forms of the same verb, the `-ed` guess (`goed`), words spelled alike.
+- **Placement test.** It checks what you already know, so study time goes to the rest.
+- **Anywhere.** Works on a phone (the table becomes a full-screen sheet) and has a light and a dark theme.
+- **No account.** Progress stays in your browser and can be exported to a file.
+
+## Keys
+
+| Key   | When                                              |
+| ----- | ------------------------------------------------- |
+| Enter | check the answer, then accept the suggested grade |
+| 1–4   | pick an option, or choose another grade           |
+| Esc   | close the table on a phone                        |
+| 0     | "Don't know" in the placement test                |
+
+An empty typed answer means "don't remember".
+
+## How cards are scheduled
+
+Cards follow Anki's v3 defaults: learning steps of 1 and 10 minutes, then 1 day (4 days on Easy); ease starts at 250%; a day starts at 4:00. **Settings** controls how many new cards appear per day (20 by default).
+
+- **Unlocking.** A new word starts with EN → RU. RU → EN opens the day after EN → RU is learned, and forms open the day after RU → EN. Opened cards use the daily new-card limit before new words do.
+- **No siblings back to back.** Cards of the same word never come one right after another.
+- **Answer modes.** **Settings → Answers** switches between the 40/60 mix, always typing and always picking. The first look at a brand-new word is always picked.
 
 ## Placement test
 
-The stopwatch button runs a placement test, so words you already know skip the learning queue. Pick what to check (EN → RU, RU → EN, V1 → V2, V1 → V3); every word is asked once, the next question comes right away, and questions follow **Settings → Answers**.
+The stopwatch button opens the test. Choose the skills (EN → RU, RU → EN, V1 → V2, V1 → V3), and every word is asked once. The next question comes right away, without feedback. Questions follow **Settings → Answers**.
 
-- **Known**: right within 4 s (8 s when typing). The card goes to review in 7–21 days, spread so they do not all come due together.
-- **Unsure**: right but slower, or typed with a typo. Review in 2–4 days.
-- **New**: wrong, "Don't know", or slower than 12 s (20 s typing). The card starts over as new.
+| Result | Rule                                                        | What happens to the card        |
+| ------ | ----------------------------------------------------------- | ------------------------------- |
+| Known  | right within 4 s (8 s when typing)                          | review in 7–21 days, spread out |
+| Unsure | right but slower, or typed with a typo                      | review in 2–4 days              |
+| New    | wrong, "Don't know", or slower than 12 s (20 s when typing) | starts over as new              |
 
-V1 → V2 and V1 → V3 both rate the one forms card, which takes the worse result. **Apply to progress** replaces the state of every tested card; you can stop early and apply what you answered.
+V1 → V2 and V1 → V3 both rate the forms card, which takes the worse result. **Apply to progress** replaces the state of every tested card. You can stop early and apply what you have answered.
 
 ## Progress
 
-Progress lives in the browser's `localStorage` under the key `english-words:v1`, so every browser and device has its own. Use **Settings → Export / Import** to back it up or move it between devices.
+Progress lives in `localStorage` under `english-words:v1`, so each browser and device has its own. **Settings → Export / Import** moves it between devices or backs it up.
 
-Progress is stored per card id (`<word id>:<kind>`), so adding, reordering or removing words never loses what was already learned.
+Progress is stored per card id (`<word id>:<kind>`), so adding, reordering or removing words never loses what you have learned.
 
 ## Adding words
 
-Words live in `data/*.jsonl`, one JSON object per line. Every file in `data/` is loaded, in file-name order, so a new set can go into a new file (for example `data/200-verbs.jsonl`). New words are introduced after the existing ones, within the daily limit of new cards.
+Words live in `data/*.jsonl`, one JSON object per line. Every file is loaded, in file-name order, and new words are introduced in that order. A new set can go into its own file, for example `data/phrasal-verbs.jsonl`.
 
-```json
-{
-  "id": "verb-get",
-  "pos": "verb",
-  "en": "get",
-  "ru": ["получать"],
-  "v2": ["got"],
-  "v3": ["got", "gotten"],
-  "irregular": true,
-  "tags": ["150-verbs"],
-  "hint": "разг.: доставать, добывать"
-}
+<!-- prettier-ignore -->
+```jsonl
+{"id": "verb-get", "pos": "verb", "en": "get", "ru": ["получать"], "v2": ["got"], "v3": ["got", "gotten"], "irregular": true, "tags": ["150-verbs"], "hint": "разг.: доставать, добывать"}
 ```
 
-| Field       | Required | Notes                                                                                                             |
-| ----------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
-| `id`        | yes      | Unique and stable: progress is attached to it. Use `<pos>-<word>`. Never rename an id of a word you have studied. |
-| `pos`       | yes      | Part of speech: `verb`, `noun`, `adjective`, …                                                                    |
-| `en`        | yes      | The English word; the infinitive for verbs.                                                                       |
-| `ru`        | yes      | Translations. Any of them is accepted as an answer.                                                               |
-| `v2`, `v3`  | verbs    | Past simple and past participle; variants go in the list (`["was", "were"]`).                                     |
-| `irregular` | no       | Irregular verbs get a forms card. Settings can turn forms on for all verbs.                                       |
-| `hint`      | no       | Shown next to the Russian prompt to tell apart words with the same translation (`do` / `make`).                   |
-| `tags`      | yes      | Free-form labels; may be empty.                                                                                   |
+| Field       | Required | Notes                                                                                                        |
+| ----------- | -------- | ------------------------------------------------------------------------------------------------------------ |
+| `id`        | yes      | `<pos>-<word>` in lowercase. Progress is attached to it, so it never changes once studied.                   |
+| `pos`       | yes      | Part of speech: `verb`, `noun`, `adjective`, …                                                               |
+| `en`        | yes      | The English word; the infinitive (without "to") for verbs.                                                   |
+| `ru`        | yes      | Translations. Any of them is accepted as an answer, so list the common ones.                                 |
+| `v2`, `v3`  | verbs    | Past simple and past participle; every accepted variant goes in the list (`["was", "were"]`).                |
+| `irregular` | no       | `true` when a form is not built with -ed, -d, -ied or a doubled consonant. Irregular verbs get a forms card. |
+| `hint`      | twins    | Required for words that share a Russian translation (`do` / `make`), shown next to the Russian prompt.       |
+| `tags`      | yes      | Labels for the set; may be empty.                                                                            |
 
-Each word has an EN → RU card and an RU → EN card; verbs with forms also get a forms card that asks one random form each time. Words without `v2`/`v3` (nouns, adjectives) only get the two translation cards.
+Words without `v2`/`v3` (nouns, adjectives) get only the two translation cards.
 
-The cards of a word open one by one: a new word starts with EN → RU, RU → EN opens the day after EN → RU is learned, and forms open the day after RU → EN. Opened cards take the daily new-card limit before new words do. Each card keeps its own SM-2 interval, and cards of the same word never come back to back.
+**From a spreadsheet:** `pnpm words:import words.xlsx --tag <set>` prints new lines. The first row must name the columns (`v1`/`en`, `перевод`/`ru`, `v2`, `v3`, optional `hint`). Words already in the deck are skipped, and words that need a hint are listed.
 
-`pnpm test` validates every data file (JSON, required fields, unique ids), and the deploy runs the tests first, so a broken line never reaches the site.
+**With Claude Code:** the project skill `.claude/skills/add-words` handles the steps: drafting entries, hints for twins, validation, review and publishing. Ask for example "add these verbs: swim, fly, forgive".
+
+`pnpm words:check` validates the data: JSON, required fields, id format, repeated words, hints for twins. The deploy runs it too, so a broken line never reaches the site.
 
 ## Development
 
 ```bash
 pnpm install
-pnpm dev        # http://localhost:5173
+pnpm dev        # local server
 pnpm check      # typecheck + tests
 pnpm build      # static site in dist/
 ```
 
-Stack: Vue 3, TypeScript, Vite, Vitest. Pushing to `main` deploys to GitHub Pages through `.github/workflows/deploy.yml`.
+Built with Vue 3, TypeScript, Vite and Vitest, with no runtime dependencies besides Vue. The code map and project rules are in [`CLAUDE.md`](CLAUDE.md).
+
+Pushing to `main` deploys to GitHub Pages through `.github/workflows/deploy.yml`.
