@@ -235,6 +235,38 @@ describe("study session", () => {
     expect(study.current.value?.id).toBe("verb-make:ru_en")
   })
 
+  it("learns more new cards after the daily limit is used up", () => {
+    const {study} = setup()
+    study.updateSettings({newPerDay: 1})
+    answerCurrent(study, "делать")
+    study.grade(4)
+    expect(study.current.value).toBeNull()
+    expect(study.canLearnMore.value).toBe(true)
+    study.learnMore()
+    expect(study.current.value?.id).toBe("verb-make:en_ru")
+    expect(study.state.day.extraNew).toBe(10)
+  })
+
+  it("practices mistakes without touching the schedule", () => {
+    const {study} = setup([DO, WALK])
+    answerCurrent(study, "нет")
+    study.grade(1)
+    answerCurrent(study, "гулять")
+    study.grade(3)
+    const before = JSON.stringify(study.state.cards.map((c) => [c.id, c.type, c.due, c.ivl]))
+    expect(study.mistakeIds.value).toEqual(["verb-do:en_ru"])
+    study.startPractice()
+    expect(study.current.value?.id).toBe("verb-do:en_ru")
+    expect(study.state.practice).toMatchObject({index: 0, right: 0})
+    answerCurrent(study, "делать")
+    study.grade(3)
+    study.practiceNext()
+    expect(study.state.practice).toBeNull()
+    expect(study.state.practiceResult).toEqual({right: 1, total: 1})
+    expect(JSON.stringify(study.state.cards.map((c) => [c.id, c.type, c.due, c.ivl]))).toBe(before)
+    expect(study.state.day.done).toHaveLength(2)
+  })
+
   it("survives corrupt storage", () => {
     const store = memoryStore()
     store.data.set(STORAGE_KEY, "{broken")

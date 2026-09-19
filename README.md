@@ -11,6 +11,7 @@ Learn English verbs by typing them: the translation in both directions and the p
 - **Anki scheduling.** Each verb has separate cards that open one by one: EN → RU, then RU → EN, then forms (irregular verbs only by default).
 - **Mixed answers.** About 40% of answers are picked from four options and 60% are typed, balanced over the day. The wrong options are easy to confuse with the right one: other forms of the same verb, the `-ed` guess (`goed`), words spelled alike.
 - **Placement test.** It checks what you already know, so study time goes to the rest.
+- **After the daily plan.** **Learn 10 more cards** raises today's new-card limit. **Practice mistakes** drills up to 20 cards you got wrong without changing when they come back.
 - **Anywhere.** Works on a phone (the table becomes a full-screen sheet) and has a light and a dark theme.
 - **No account.** Progress stays in your browser and can be exported to a file.
 

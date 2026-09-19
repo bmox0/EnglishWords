@@ -6,7 +6,7 @@ import {FIELD_LABEL, GRADE_LABEL, taskText} from "../domain/labels"
 import {display} from "../domain/notes"
 import {remainingCount} from "../domain/queue"
 import {dayOf, MINUTE} from "../domain/scheduler"
-import {useStudy} from "../store/study"
+import {LEARN_MORE, PRACTICE_SIZE, useStudy} from "../store/study"
 import ChoiceOptions from "./ChoiceOptions.vue"
 import FormsRow from "./FormsRow.vue"
 import GradeButtons from "./GradeButtons.vue"
@@ -23,6 +23,7 @@ const after = ref<HTMLElement | null>(null)
 const remaining = computed(() => remainingCount(study.queue.value))
 const untouched = computed(() => study.state.cards.every((c) => c.type === "new"))
 const upcoming = computed(() => Math.max(0, remaining.value - (card.value ? 1 : 0)))
+const trackWide = computed(() => study.state.day.done.length + (card.value ? 1 : 0) + upcoming.value > 20)
 
 const VERDICT_TEXT = {right: "Correct", close: "Almost: check the spelling", wrong: "Not quite"} as const
 
@@ -101,7 +102,7 @@ onMounted(focusInput)
   <section class="work" aria-label="Dictation">
     <div class="work-inner">
       <div class="work-top">
-        <div class="track" role="img" :aria-label="`Today: ${study.state.day.done.length} done, ${remaining} left`">
+        <div class="track" :class="{wide: trackWide}" role="img" :aria-label="`Today: ${study.state.day.done.length} done, ${remaining} left`">
           <i v-for="(entry, index) in study.state.day.done" :key="index" :class="`g${entry.grade}`" />
           <i v-if="card" class="cur" />
           <i v-for="index in upcoming" :key="`next-${index}`" />
@@ -165,12 +166,25 @@ onMounted(focusInput)
       <div v-if="!card || !session.exercise" class="empty">
         <h2>{{ empty.title }}</h2>
         <p>{{ empty.text }}</p>
+        <p v-if="study.state.practiceResult" class="practice-score">
+          Practice: {{ study.state.practiceResult.right }} of {{ study.state.practiceResult.total }} right.
+        </p>
+        <div v-if="study.canLearnMore.value || study.mistakeIds.value.length" class="empty-actions">
+          <button v-if="study.canLearnMore.value" type="button" class="btn primary" @click="study.learnMore()">
+            Learn {{ LEARN_MORE }} more cards
+          </button>
+          <button v-if="study.mistakeIds.value.length" type="button" class="btn" @click="study.startPractice()">
+            Practice mistakes · {{ Math.min(PRACTICE_SIZE, study.mistakeIds.value.length) }}
+          </button>
+        </div>
+        <p v-if="study.mistakeIds.value.length" class="muted">Practice goes over cards you got wrong, without changing when they come back.</p>
       </div>
 
       <template v-else>
         <div class="meta">
           <span>{{ taskText(session.exercise) }}</span>
-          <span>{{ remaining }} left</span>
+          <span v-if="study.state.practice">practice {{ study.state.practice.index + 1 }} / {{ study.state.practice.cardIds.length }}</span>
+          <span v-else>{{ remaining }} left</span>
         </div>
         <h1 class="prompt" :lang="session.exercise.given === 'ru' ? 'ru' : 'en'" :style="{'--len': Math.max(6, prompt.length)}">{{ prompt }}</h1>
         <div v-if="sub" class="sub" :lang="session.exercise.given === 'v1' ? 'ru' : 'en'">{{ sub }}</div>
@@ -211,7 +225,9 @@ onMounted(focusInput)
           <b lang="en">{{ session.other.en }}</b> also means «<span lang="ru">{{ display(session.other, "ru") }}</span
           >», but a different verb is asked here. Try again.
         </div>
-        <div v-if="session.peeked && !session.result" class="msg" role="status">You peeked at the table, so the check will suggest Again.</div>
+        <div v-if="session.peeked && !session.result && !study.state.practice" class="msg" role="status">
+          You peeked at the table, so the check will suggest Again.
+        </div>
 
         <div v-if="!session.result && session.exercise.mode === 'choice'" class="hint">
           <span class="keys"><kbd>1</kbd>–<kbd>4</kbd> pick an answer</span>
@@ -225,8 +241,19 @@ onMounted(focusInput)
         <div v-else ref="after" class="after">
           <p class="sr" role="status">{{ VERDICT_TEXT[session.result] }}</p>
           <FormsRow :note="card.note" :exercise="session.exercise" />
-          <GradeButtons v-if="study.suggested.value" :card="card" :suggested="study.suggested.value" :now="study.state.now" @grade="study.grade" />
-          <div v-if="study.suggested.value" class="hint keys">
+          <div v-if="study.state.practice" class="hint">
+            <button type="button" class="btn primary" @mousedown.prevent @click="study.practiceNext()">Next</button>
+            <span class="keys"><kbd>Enter</kbd> next</span>
+            <button type="button" class="text-btn" @click="study.endPractice()">End practice</button>
+          </div>
+          <GradeButtons
+            v-else-if="study.suggested.value"
+            :card="card"
+            :suggested="study.suggested.value"
+            :now="study.state.now"
+            @grade="study.grade"
+          />
+          <div v-if="!study.state.practice && study.suggested.value" class="hint keys">
             <span><kbd>Enter</kbd> accept «{{ GRADE_LABEL[study.suggested.value] }}»</span>
             <span><kbd>1</kbd>–<kbd>4</kbd> another grade</span>
           </div>

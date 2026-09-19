@@ -272,10 +272,13 @@ kbd {
 }
 
 .track {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(10, 11px);
   gap: 3px;
   padding-top: 11px;
+}
+.track.wide {
+  grid-template-columns: repeat(20, 11px);
 }
 .track i {
   width: 11px;
@@ -616,6 +619,16 @@ kbd {
 .empty p {
   margin: 0;
   color: var(--muted);
+}
+.empty .practice-score {
+  margin-top: 12px;
+  color: var(--ink);
+}
+.empty-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 28px 0 10px;
 }
 
 .ref-top {
@@ -1133,8 +1146,16 @@ fieldset.setting {
     margin-bottom: 20px;
   }
   .track {
+    grid-template-columns: repeat(10, 8px);
     gap: 2px;
     padding-top: 12px;
+  }
+  .track.wide {
+    grid-template-columns: repeat(20, 6px);
+  }
+  .track.wide i {
+    width: 6px;
+    height: 6px;
   }
   .track i {
     width: 8px;

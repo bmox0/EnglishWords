@@ -31,6 +31,13 @@ function onKeydown(event: KeyboardEvent) {
     return
   }
   if (target.closest("[data-no-hotkeys]")) return
+  if (study.state.practice && study.state.session.result) {
+    if (event.key === "Enter") {
+      event.preventDefault()
+      study.practiceNext()
+    }
+    return
+  }
   const suggested = study.suggested.value
   if (suggested) {
     if (["1", "2", "3", "4"].includes(event.key)) {

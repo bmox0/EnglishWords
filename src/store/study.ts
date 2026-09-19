@@ -31,12 +31,25 @@ export interface Session {
   peeked: boolean
 }
 
+/** An extra drill over cards with mistakes; it never changes the schedule. */
+export interface Practice {
+  cardIds: string[]
+  index: number
+  right: number
+}
+
 /** Per-note answers of today, for the table. */
 export interface TodayInfo {
   entries: DayProgress["done"]
   wrong: boolean
   last: Grade
 }
+
+/** How many cards "Learn more" adds to today's new-card limit. */
+export const LEARN_MORE = 10
+
+/** The most cards one practice round takes. */
+export const PRACTICE_SIZE = 20
 
 const freshSession = (): Session => ({cardId: null, exercise: null, answer: "", result: null, chosen: null, other: null, peeked: false})
 
@@ -53,10 +66,20 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     tableOpen: initial.tableOpen,
     cards: buildCards(allNotes, initial.settings.formsFor, savedCards) as Card[],
     session: freshSession(),
+    practice: null as Practice | null,
+    practiceResult: null as {right: number; total: number} | null,
     storageOk: true,
   })
 
-  const queue = computed(() => buildQueue(state.cards, state.day, state.now, state.settings.newPerDay))
+  const newLimit = computed(() => state.settings.newPerDay + state.day.extraNew)
+  const queue = computed(() => buildQueue(state.cards, state.day, state.now, newLimit.value))
+  const canLearnMore = computed(
+    () => buildQueue(state.cards, state.day, state.now, newLimit.value + LEARN_MORE).news.length > queue.value.news.length,
+  )
+  const mistakeIds = computed(() => {
+    const wrongToday = new Set(state.day.done.filter((d) => !d.ok || d.grade === 1).map((d) => d.cardId))
+    return state.cards.filter((c) => c.type !== "new" && (wrongToday.has(c.id) || c.lapses > 0)).map((c) => c.id)
+  })
   const current = computed(() => (state.session.cardId ? (state.cards.find((c) => c.id === state.session.cardId) ?? null) : null))
   const suggested = computed(() => (state.session.result ? suggestGrade(state.session.result, state.session.peeked) : null))
 
@@ -105,6 +128,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     state.tableOpen = saved.tableOpen
     state.cards = buildCards(allNotes, saved.settings.formsFor, savedCards)
     const same = previous && state.cards.find((c) => c.id === previous.id)?.reps === previous.reps
+    if (!same) state.practice = null
     state.session = same ? session : freshSession()
     ensureCurrent()
   }
@@ -154,12 +178,58 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     if (current.value && state.session.exercise?.mode === "choice" && !state.session.result) state.session.result = "wrong"
   }
 
+  /** Raises today's new-card limit so more new cards come up. */
+  function learnMore() {
+    state.practiceResult = null
+    state.day.extraNew += LEARN_MORE
+    persist()
+    ensureCurrent()
+  }
+
+  function startPracticeCard() {
+    const practice = state.practice
+    start(practice ? (state.cards.find((c) => c.id === practice.cardIds[practice.index]) ?? null) : null)
+  }
+
+  /** Starts a practice round over up to 20 cards with mistakes, in random order; answers there do not touch the schedule. */
+  function startPractice() {
+    const ids = [...mistakeIds.value]
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1))
+      ;[ids[i], ids[j]] = [ids[j] as string, ids[i] as string]
+    }
+    if (!ids.length) return
+    state.practiceResult = null
+    state.practice = {cardIds: ids.slice(0, PRACTICE_SIZE), index: 0, right: 0}
+    startPracticeCard()
+  }
+
+  /** Moves a practice round to its next card, or ends it with a score after the last one. */
+  function practiceNext() {
+    const practice = state.practice
+    if (!practice || !state.session.result) return
+    if (state.session.result === "right" && !state.session.peeked) practice.right++
+    practice.index++
+    if (practice.index < practice.cardIds.length) {
+      startPracticeCard()
+      return
+    }
+    state.practiceResult = {right: practice.right, total: practice.cardIds.length}
+    endPractice()
+  }
+
+  function endPractice() {
+    state.practice = null
+    state.session = freshSession()
+    ensureCurrent()
+  }
+
   /** Records the grade for the checked card, saves progress and moves to the next card. */
   function grade(value: Grade) {
     const card = current.value
     const exercise = state.session.exercise
     const result = state.session.result
-    if (!card || !exercise || !result) return
+    if (!card || !exercise || !result || state.practice) return
     state.now = clock()
     state.day = rollDay(state.day, state.now)
     if (card.type === "new") {
@@ -242,6 +312,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     state.now = clock()
     state.day = freshDay(state.now)
     state.cards = buildCards(allNotes, state.settings.formsFor, savedCards)
+    state.practice = null
     state.session = freshSession()
     persist()
     ensureCurrent()
@@ -260,6 +331,8 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     queue,
     current,
     suggested,
+    canLearnMore,
+    mistakeIds,
     cardsByNote,
     today,
     tick,
@@ -268,6 +341,10 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     choose,
     giveUp,
     grade,
+    learnMore,
+    startPractice,
+    practiceNext,
+    endPractice,
     peek,
     setTableOpen,
     updateSettings,

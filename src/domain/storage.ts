@@ -60,7 +60,8 @@ function readDay(value: unknown, t: number): DayProgress {
   if (!isObject(value) || !isNumber(value.index) || !isNumber(value.newDone) || !isNumber(value.revDone)) return freshDay(t)
   const introduced = Array.isArray(value.introduced) ? value.introduced.filter((x): x is string => typeof x === "string") : []
   const done = Array.isArray(value.done) ? value.done.map(readDone).filter((x): x is DoneEntry => x !== null) : []
-  return {index: value.index, newDone: value.newDone, revDone: value.revDone, introduced, done}
+  const extraNew = isNumber(value.extraNew) ? Math.max(0, value.extraNew) : 0
+  return {index: value.index, newDone: value.newDone, revDone: value.revDone, extraNew, introduced, done}
 }
 
 function readSettings(value: unknown): Settings {

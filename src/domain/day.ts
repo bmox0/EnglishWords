@@ -16,18 +16,19 @@ export interface DoneEntry {
   mode: Exercise["mode"]
 }
 
-/** Today's counters: the limits, the notes that got a new card today and the answers log reset when the day changes. */
+/** Today's counters: the limits, extra new cards asked for, the notes that got a new card today and the answers log; all reset when the day changes. */
 export interface DayProgress {
   index: number
   newDone: number
   revDone: number
+  extraNew: number
   introduced: string[]
   done: DoneEntry[]
 }
 
 /** An empty day for the given timestamp. */
 export function freshDay(t: number): DayProgress {
-  return {index: dayOf(t), newDone: 0, revDone: 0, introduced: [], done: []}
+  return {index: dayOf(t), newDone: 0, revDone: 0, extraNew: 0, introduced: [], done: []}
 }
 
 /** The same progress if `t` is still the same day, otherwise a fresh day. */
