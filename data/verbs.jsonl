@@ -1,0 +1,150 @@
+{"id": "verb-be", "pos": "verb", "en": "be", "ru": ["быть"], "v2": ["was", "were"], "v3": ["been"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-have", "pos": "verb", "en": "have", "ru": ["иметь"], "v2": ["had"], "v3": ["had"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-do", "pos": "verb", "en": "do", "ru": ["делать"], "v2": ["did"], "v3": ["done"], "irregular": true, "tags": ["150-verbs"], "hint": "выполнять действие"}
+{"id": "verb-say", "pos": "verb", "en": "say", "ru": ["сказать"], "v2": ["said"], "v3": ["said"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-go", "pos": "verb", "en": "go", "ru": ["идти"], "v2": ["went"], "v3": ["gone"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-get", "pos": "verb", "en": "get", "ru": ["получать"], "v2": ["got"], "v3": ["got", "gotten"], "irregular": true, "tags": ["150-verbs"], "hint": "разг.: доставать, добывать"}
+{"id": "verb-make", "pos": "verb", "en": "make", "ru": ["делать"], "v2": ["made"], "v3": ["made"], "irregular": true, "tags": ["150-verbs"], "hint": "изготавливать, создавать"}
+{"id": "verb-know", "pos": "verb", "en": "know", "ru": ["знать"], "v2": ["knew"], "v3": ["known"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-think", "pos": "verb", "en": "think", "ru": ["думать"], "v2": ["thought"], "v3": ["thought"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-take", "pos": "verb", "en": "take", "ru": ["брать"], "v2": ["took"], "v3": ["taken"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-see", "pos": "verb", "en": "see", "ru": ["видеть"], "v2": ["saw"], "v3": ["seen"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-come", "pos": "verb", "en": "come", "ru": ["приходить"], "v2": ["came"], "v3": ["come"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-give", "pos": "verb", "en": "give", "ru": ["давать"], "v2": ["gave"], "v3": ["given"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-find", "pos": "verb", "en": "find", "ru": ["находить"], "v2": ["found"], "v3": ["found"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-tell", "pos": "verb", "en": "tell", "ru": ["рассказывать"], "v2": ["told"], "v3": ["told"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-put", "pos": "verb", "en": "put", "ru": ["класть"], "v2": ["put"], "v3": ["put"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-keep", "pos": "verb", "en": "keep", "ru": ["держать"], "v2": ["kept"], "v3": ["kept"], "irregular": true, "tags": ["150-verbs"], "hint": "хранить, сохранять"}
+{"id": "verb-let", "pos": "verb", "en": "let", "ru": ["позволять"], "v2": ["let"], "v3": ["let"], "irregular": true, "tags": ["150-verbs"], "hint": "let me go"}
+{"id": "verb-begin", "pos": "verb", "en": "begin", "ru": ["начинать"], "v2": ["began"], "v3": ["begun"], "irregular": true, "tags": ["150-verbs"], "hint": "книжн."}
+{"id": "verb-show", "pos": "verb", "en": "show", "ru": ["показывать"], "v2": ["showed"], "v3": ["shown", "showed"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-hear", "pos": "verb", "en": "hear", "ru": ["слышать"], "v2": ["heard"], "v3": ["heard"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-run", "pos": "verb", "en": "run", "ru": ["бежать"], "v2": ["ran"], "v3": ["run"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-bring", "pos": "verb", "en": "bring", "ru": ["приносить"], "v2": ["brought"], "v3": ["brought"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-write", "pos": "verb", "en": "write", "ru": ["писать"], "v2": ["wrote"], "v3": ["written"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-stand", "pos": "verb", "en": "stand", "ru": ["стоять"], "v2": ["stood"], "v3": ["stood"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-meet", "pos": "verb", "en": "meet", "ru": ["встречать"], "v2": ["met"], "v3": ["met"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-set", "pos": "verb", "en": "set", "ru": ["устанавливать"], "v2": ["set"], "v3": ["set"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-sit", "pos": "verb", "en": "sit", "ru": ["сидеть"], "v2": ["sat"], "v3": ["sat"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-leave", "pos": "verb", "en": "leave", "ru": ["оставлять"], "v2": ["left"], "v3": ["left"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-look", "pos": "verb", "en": "look", "ru": ["глядеть"], "v2": ["looked"], "v3": ["looked"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-want", "pos": "verb", "en": "want", "ru": ["хотеть"], "v2": ["wanted"], "v3": ["wanted"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-use", "pos": "verb", "en": "use", "ru": ["использовать"], "v2": ["used"], "v3": ["used"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-work", "pos": "verb", "en": "work", "ru": ["работать"], "v2": ["worked"], "v3": ["worked"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-try", "pos": "verb", "en": "try", "ru": ["пытаться"], "v2": ["tried"], "v3": ["tried"], "irregular": false, "tags": ["150-verbs"], "hint": "пробовать"}
+{"id": "verb-call", "pos": "verb", "en": "call", "ru": ["звать", "звонить"], "v2": ["called"], "v3": ["called"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-need", "pos": "verb", "en": "need", "ru": ["нуждаться"], "v2": ["needed"], "v3": ["needed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-feel", "pos": "verb", "en": "feel", "ru": ["чувствовать"], "v2": ["felt"], "v3": ["felt"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-become", "pos": "verb", "en": "become", "ru": ["становиться"], "v2": ["became"], "v3": ["become"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-mean", "pos": "verb", "en": "mean", "ru": ["означать"], "v2": ["meant"], "v3": ["meant"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-move", "pos": "verb", "en": "move", "ru": ["двигаться"], "v2": ["moved"], "v3": ["moved"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-live", "pos": "verb", "en": "live", "ru": ["жить"], "v2": ["lived"], "v3": ["lived"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-believe", "pos": "verb", "en": "believe", "ru": ["верить"], "v2": ["believed"], "v3": ["believed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-hold", "pos": "verb", "en": "hold", "ru": ["держать"], "v2": ["held"], "v3": ["held"], "irregular": true, "tags": ["150-verbs"], "hint": "в руках"}
+{"id": "verb-turn", "pos": "verb", "en": "turn", "ru": ["поворачивать"], "v2": ["turned"], "v3": ["turned"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-talk", "pos": "verb", "en": "talk", "ru": ["беседовать"], "v2": ["talked"], "v3": ["talked"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-start", "pos": "verb", "en": "start", "ru": ["начинать"], "v2": ["started"], "v3": ["started"], "irregular": false, "tags": ["150-verbs"], "hint": "запускать, стартовать"}
+{"id": "verb-stop", "pos": "verb", "en": "stop", "ru": ["останавливать"], "v2": ["stopped"], "v3": ["stopped"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-play", "pos": "verb", "en": "play", "ru": ["играть"], "v2": ["played"], "v3": ["played"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-read", "pos": "verb", "en": "read", "ru": ["читать"], "v2": ["read"], "v3": ["read"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-spend", "pos": "verb", "en": "spend", "ru": ["тратить"], "v2": ["spent"], "v3": ["spent"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-walk", "pos": "verb", "en": "walk", "ru": ["гулять"], "v2": ["walked"], "v3": ["walked"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-grow", "pos": "verb", "en": "grow", "ru": ["расти"], "v2": ["grew"], "v3": ["grown"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-win", "pos": "verb", "en": "win", "ru": ["выигрывать"], "v2": ["won"], "v3": ["won"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-open", "pos": "verb", "en": "open", "ru": ["открывать"], "v2": ["opened"], "v3": ["opened"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-close", "pos": "verb", "en": "close", "ru": ["закрывать"], "v2": ["closed"], "v3": ["closed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-change", "pos": "verb", "en": "change", "ru": ["менять"], "v2": ["changed"], "v3": ["changed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-allow", "pos": "verb", "en": "allow", "ru": ["позволять"], "v2": ["allowed"], "v3": ["allowed"], "irregular": false, "tags": ["150-verbs"], "hint": "разрешать"}
+{"id": "verb-add", "pos": "verb", "en": "add", "ru": ["добавлять"], "v2": ["added"], "v3": ["added"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-offer", "pos": "verb", "en": "offer", "ru": ["предлагать"], "v2": ["offered"], "v3": ["offered"], "irregular": false, "tags": ["150-verbs"], "hint": "дать что-то"}
+{"id": "verb-remember", "pos": "verb", "en": "remember", "ru": ["помнить"], "v2": ["remembered"], "v3": ["remembered"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-buy", "pos": "verb", "en": "buy", "ru": ["покупать"], "v2": ["bought"], "v3": ["bought"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-send", "pos": "verb", "en": "send", "ru": ["отправлять"], "v2": ["sent"], "v3": ["sent"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-build", "pos": "verb", "en": "build", "ru": ["строить"], "v2": ["built"], "v3": ["built"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-fall", "pos": "verb", "en": "fall", "ru": ["падать"], "v2": ["fell"], "v3": ["fallen"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-cut", "pos": "verb", "en": "cut", "ru": ["резать"], "v2": ["cut"], "v3": ["cut"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-rise", "pos": "verb", "en": "rise", "ru": ["подниматься"], "v2": ["rose"], "v3": ["risen"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-drive", "pos": "verb", "en": "drive", "ru": ["водить"], "v2": ["drove"], "v3": ["driven"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-break", "pos": "verb", "en": "break", "ru": ["ломать"], "v2": ["broke"], "v3": ["broken"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-wear", "pos": "verb", "en": "wear", "ru": ["носить"], "v2": ["wore"], "v3": ["worn"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-speak", "pos": "verb", "en": "speak", "ru": ["разговаривать"], "v2": ["spoke"], "v3": ["spoken"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-eat", "pos": "verb", "en": "eat", "ru": ["есть"], "v2": ["ate"], "v3": ["eaten"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-forget", "pos": "verb", "en": "forget", "ru": ["забывать"], "v2": ["forgot"], "v3": ["forgotten"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-teach", "pos": "verb", "en": "teach", "ru": ["учить"], "v2": ["taught"], "v3": ["taught"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-support", "pos": "verb", "en": "support", "ru": ["поддерживать"], "v2": ["supported"], "v3": ["supported"], "irregular": false, "tags": ["150-verbs"], "hint": "помогать"}
+{"id": "verb-pay", "pos": "verb", "en": "pay", "ru": ["платить"], "v2": ["paid"], "v3": ["paid"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-include", "pos": "verb", "en": "include", "ru": ["включать"], "v2": ["included"], "v3": ["included"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-continue", "pos": "verb", "en": "continue", "ru": ["продолжать"], "v2": ["continued"], "v3": ["continued"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-learn", "pos": "verb", "en": "learn", "ru": ["учиться"], "v2": ["learned", "learnt"], "v3": ["learned", "learnt"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-lead", "pos": "verb", "en": "lead", "ru": ["вести"], "v2": ["led"], "v3": ["led"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-understand", "pos": "verb", "en": "understand", "ru": ["понимать"], "v2": ["understood"], "v3": ["understood"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-watch", "pos": "verb", "en": "watch", "ru": ["смотреть"], "v2": ["watched"], "v3": ["watched"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-follow", "pos": "verb", "en": "follow", "ru": ["следовать"], "v2": ["followed"], "v3": ["followed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-create", "pos": "verb", "en": "create", "ru": ["создавать"], "v2": ["created"], "v3": ["created"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-happen", "pos": "verb", "en": "happen", "ru": ["случаться"], "v2": ["happened"], "v3": ["happened"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-wait", "pos": "verb", "en": "wait", "ru": ["ждать"], "v2": ["waited"], "v3": ["waited"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-sell", "pos": "verb", "en": "sell", "ru": ["продавать"], "v2": ["sold"], "v3": ["sold"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-pass", "pos": "verb", "en": "pass", "ru": ["проходить"], "v2": ["passed"], "v3": ["passed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-expect", "pos": "verb", "en": "expect", "ru": ["ожидать"], "v2": ["expected"], "v3": ["expected"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-suggest", "pos": "verb", "en": "suggest", "ru": ["предлагать"], "v2": ["suggested"], "v3": ["suggested"], "irregular": false, "tags": ["150-verbs"], "hint": "идею, совет"}
+{"id": "verb-decide", "pos": "verb", "en": "decide", "ru": ["решать"], "v2": ["decided"], "v3": ["decided"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-receive", "pos": "verb", "en": "receive", "ru": ["получать"], "v2": ["received"], "v3": ["received"], "irregular": false, "tags": ["150-verbs"], "hint": "офиц.: принимать присланное"}
+{"id": "verb-love", "pos": "verb", "en": "love", "ru": ["любить"], "v2": ["loved"], "v3": ["loved"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-agree", "pos": "verb", "en": "agree", "ru": ["соглашаться"], "v2": ["agreed"], "v3": ["agreed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-report", "pos": "verb", "en": "report", "ru": ["сообщать"], "v2": ["reported"], "v3": ["reported"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-reach", "pos": "verb", "en": "reach", "ru": ["достигать"], "v2": ["reached"], "v3": ["reached"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-require", "pos": "verb", "en": "require", "ru": ["требовать"], "v2": ["required"], "v3": ["required"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-raise", "pos": "verb", "en": "raise", "ru": ["поднимать"], "v2": ["raised"], "v3": ["raised"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-represent", "pos": "verb", "en": "represent", "ru": ["представлять"], "v2": ["represented"], "v3": ["represented"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-explain", "pos": "verb", "en": "explain", "ru": ["объяснять"], "v2": ["explained"], "v3": ["explained"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-introduce", "pos": "verb", "en": "introduce", "ru": ["знакомить"], "v2": ["introduced"], "v3": ["introduced"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-join", "pos": "verb", "en": "join", "ru": ["присоединяться"], "v2": ["joined"], "v3": ["joined"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-push", "pos": "verb", "en": "push", "ru": ["толкать"], "v2": ["pushed"], "v3": ["pushed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-affect", "pos": "verb", "en": "affect", "ru": ["влиять"], "v2": ["affected"], "v3": ["affected"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-operate", "pos": "verb", "en": "operate", "ru": ["управлять"], "v2": ["operated"], "v3": ["operated"], "irregular": false, "tags": ["150-verbs"], "hint": "механизмом, работать"}
+{"id": "verb-attack", "pos": "verb", "en": "attack", "ru": ["атаковать"], "v2": ["attacked"], "v3": ["attacked"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-fill", "pos": "verb", "en": "fill", "ru": ["заполнять"], "v2": ["filled"], "v3": ["filled"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-listen", "pos": "verb", "en": "listen", "ru": ["слушать"], "v2": ["listened"], "v3": ["listened"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-discuss", "pos": "verb", "en": "discuss", "ru": ["обсуждать"], "v2": ["discussed"], "v3": ["discussed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-choose", "pos": "verb", "en": "choose", "ru": ["выбирать"], "v2": ["chose"], "v3": ["chosen"], "irregular": true, "tags": ["150-verbs"], "hint": "сделать выбор"}
+{"id": "verb-claim", "pos": "verb", "en": "claim", "ru": ["заявлять"], "v2": ["claimed"], "v3": ["claimed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-exist", "pos": "verb", "en": "exist", "ru": ["существовать"], "v2": ["existed"], "v3": ["existed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-catch", "pos": "verb", "en": "catch", "ru": ["ловить"], "v2": ["caught"], "v3": ["caught"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-save", "pos": "verb", "en": "save", "ru": ["сохранять"], "v2": ["saved"], "v3": ["saved"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-enter", "pos": "verb", "en": "enter", "ru": ["входить"], "v2": ["entered"], "v3": ["entered"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-search", "pos": "verb", "en": "search", "ru": ["искать"], "v2": ["searched"], "v3": ["searched"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-throw", "pos": "verb", "en": "throw", "ru": ["бросать"], "v2": ["threw"], "v3": ["thrown"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-manage", "pos": "verb", "en": "manage", "ru": ["управлять"], "v2": ["managed"], "v3": ["managed"], "irregular": false, "tags": ["150-verbs"], "hint": "делами, справляться"}
+{"id": "verb-clear", "pos": "verb", "en": "clear", "ru": ["очищать"], "v2": ["cleared"], "v3": ["cleared"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-dream", "pos": "verb", "en": "dream", "ru": ["мечтать"], "v2": ["dreamed", "dreamt"], "v3": ["dreamed", "dreamt"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-rest", "pos": "verb", "en": "rest", "ru": ["отдыхать"], "v2": ["rested"], "v3": ["rested"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-cover", "pos": "verb", "en": "cover", "ru": ["покрывать"], "v2": ["covered"], "v3": ["covered"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-draw", "pos": "verb", "en": "draw", "ru": ["рисовать"], "v2": ["drew"], "v3": ["drawn"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-act", "pos": "verb", "en": "act", "ru": ["действовать"], "v2": ["acted"], "v3": ["acted"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-indicate", "pos": "verb", "en": "indicate", "ru": ["указывать"], "v2": ["indicated"], "v3": ["indicated"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-prove", "pos": "verb", "en": "prove", "ru": ["доказывать"], "v2": ["proved"], "v3": ["proven", "proved"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-pick", "pos": "verb", "en": "pick", "ru": ["выбирать"], "v2": ["picked"], "v3": ["picked"], "irregular": false, "tags": ["150-verbs"], "hint": "подбирать, отбирать"}
+{"id": "verb-express", "pos": "verb", "en": "express", "ru": ["выражать"], "v2": ["expressed"], "v3": ["expressed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-check", "pos": "verb", "en": "check", "ru": ["проверять"], "v2": ["checked"], "v3": ["checked"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-prepare", "pos": "verb", "en": "prepare", "ru": ["готовить"], "v2": ["prepared"], "v3": ["prepared"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-destroy", "pos": "verb", "en": "destroy", "ru": ["разрушать"], "v2": ["destroyed"], "v3": ["destroyed"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-protect", "pos": "verb", "en": "protect", "ru": ["защищать"], "v2": ["protected"], "v3": ["protected"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-improve", "pos": "verb", "en": "improve", "ru": ["улучшать"], "v2": ["improved"], "v3": ["improved"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-attempt", "pos": "verb", "en": "attempt", "ru": ["пытаться"], "v2": ["attempted"], "v3": ["attempted"], "irregular": false, "tags": ["150-verbs"], "hint": "офиц., предпринять попытку"}
+{"id": "verb-control", "pos": "verb", "en": "control", "ru": ["контролировать"], "v2": ["controlled"], "v3": ["controlled"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-admit", "pos": "verb", "en": "admit", "ru": ["признавать"], "v2": ["admitted"], "v3": ["admitted"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-handle", "pos": "verb", "en": "handle", "ru": ["справляться"], "v2": ["handled"], "v3": ["handled"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-avoid", "pos": "verb", "en": "avoid", "ru": ["избегать"], "v2": ["avoided"], "v3": ["avoided"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-reflect", "pos": "verb", "en": "reflect", "ru": ["отражать"], "v2": ["reflected"], "v3": ["reflected"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-serve", "pos": "verb", "en": "serve", "ru": ["служить"], "v2": ["served"], "v3": ["served"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-determine", "pos": "verb", "en": "determine", "ru": ["определять"], "v2": ["determined"], "v3": ["determined"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-wish", "pos": "verb", "en": "wish", "ru": ["желать"], "v2": ["wished"], "v3": ["wished"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-deal", "pos": "verb", "en": "deal", "ru": ["иметь дело"], "v2": ["dealt"], "v3": ["dealt"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-lose", "pos": "verb", "en": "lose", "ru": ["терять"], "v2": ["lost"], "v3": ["lost"], "irregular": true, "tags": ["150-verbs"]}
+{"id": "verb-accept", "pos": "verb", "en": "accept", "ru": ["принимать"], "v2": ["accepted"], "v3": ["accepted"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-mention", "pos": "verb", "en": "mention", "ru": ["упоминать"], "v2": ["mentioned"], "v3": ["mentioned"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-maintain", "pos": "verb", "en": "maintain", "ru": ["поддерживать"], "v2": ["maintained"], "v3": ["maintained"], "irregular": false, "tags": ["150-verbs"], "hint": "в порядке, в состоянии"}
+{"id": "verb-describe", "pos": "verb", "en": "describe", "ru": ["описывать"], "v2": ["described"], "v3": ["described"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-involve", "pos": "verb", "en": "involve", "ru": ["вовлекать"], "v2": ["involved"], "v3": ["involved"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-apply", "pos": "verb", "en": "apply", "ru": ["применять"], "v2": ["applied"], "v3": ["applied"], "irregular": false, "tags": ["150-verbs"]}
+{"id": "verb-return", "pos": "verb", "en": "return", "ru": ["возвращаться"], "v2": ["returned"], "v3": ["returned"], "irregular": false, "tags": ["150-verbs"]}
