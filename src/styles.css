@@ -16,6 +16,8 @@
   --review: #23794d;
   --young: #93cda9;
   --mature: #23794d;
+  --thumb: rgba(27, 34, 51, 0.16);
+  --thumb-hover: rgba(27, 34, 51, 0.34);
   --display: "Literata", Georgia, "Times New Roman", serif;
   --ui: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: light dark;
@@ -40,11 +42,34 @@
     --review: #5cc48d;
     --young: #2f6b4a;
     --mature: #5cc48d;
+    --thumb: rgba(231, 235, 242, 0.14);
+    --thumb-hover: rgba(231, 235, 242, 0.32);
   }
 }
 
 * {
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumb) transparent;
+}
+:hover {
+  scrollbar-color: var(--thumb-hover) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 10px;
+  background: var(--thumb) padding-box;
+}
+:hover::-webkit-scrollbar-thumb {
+  background-color: var(--thumb-hover);
 }
 html,
 body {
