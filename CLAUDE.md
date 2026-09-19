@@ -32,7 +32,7 @@ pnpm build           # static site in dist/
 ## Style
 
 - Prettier: no semicolons, double quotes, width 150, no bracket spacing (`pnpm format`).
-- The font is Roboto Mono at weights 300 (body), 400 and 500. Do not add heavier weights.
+- The font is Iosevka Charon at weights 300 (body), 400 and 500. Do not add heavier weights.
 
 ## Deploy
 
