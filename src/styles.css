@@ -659,7 +659,11 @@ kbd {
 .chips {
   display: flex;
   gap: 4px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 6px;
+  margin-bottom: -6px;
 }
 .chip {
   flex: none;

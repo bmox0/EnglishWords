@@ -62,6 +62,13 @@ function isMasked(note: Note): boolean {
   return study.current.value?.note.id === note.id && !s.result && !s.peeked
 }
 
+function scrollChips(event: WheelEvent) {
+  const el = event.currentTarget as HTMLElement
+  if (Math.abs(event.deltaY) <= Math.abs(event.deltaX) || el.scrollWidth <= el.clientWidth) return
+  event.preventDefault()
+  el.scrollLeft += event.deltaY
+}
+
 function toggle(noteId: string) {
   selected.value = selected.value === noteId ? null : noteId
 }
@@ -114,7 +121,7 @@ onBeforeUnmount(() => observer?.disconnect())
           </svg>
         </button>
       </div>
-      <div class="chips" role="group" aria-label="Filter">
+      <div class="chips" role="group" aria-label="Filter" @wheel="scrollChips">
         <button
           v-for="f in FILTERS"
           :key="f.key"
