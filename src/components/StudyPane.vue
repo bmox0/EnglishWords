@@ -2,7 +2,7 @@
 import {computed, nextTick, onMounted, ref, watch} from "vue"
 
 import {formatMinutes, plural} from "../domain/format"
-import {FIELD_LABEL, taskText} from "../domain/labels"
+import {FIELD_LABEL, taskLabel} from "../domain/labels"
 import {display} from "../domain/notes"
 import {remainingCount} from "../domain/queue"
 import {dayOf, MINUTE} from "../domain/scheduler"
@@ -36,6 +36,8 @@ const sub = computed(() => {
   if (exercise.given === "v2" || exercise.given === "v3") return FIELD_LABEL[exercise.given]
   return ""
 })
+
+const task = computed(() => taskLabel(session.value.exercise?.given ?? "v1", session.value.exercise?.ask ?? "ru"))
 
 const prompt = computed(() => (card.value && session.value.exercise ? display(card.value.note, session.value.exercise.given) : ""))
 
@@ -182,7 +184,9 @@ onMounted(focusInput)
 
       <template v-else>
         <div class="meta">
-          <span>{{ taskText(session.exercise) }}</span>
+          <span
+            >To <b>{{ task.name }}</b> ({{ task.direction }})</span
+          >
           <span v-if="study.state.practice">practice {{ study.state.practice.index + 1 }} / {{ study.state.practice.cardIds.length }}</span>
           <span v-else>{{ remaining }} left</span>
         </div>

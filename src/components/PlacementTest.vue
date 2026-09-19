@@ -2,7 +2,7 @@
 import {computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef} from "vue"
 
 import {checkAnswer, LIMITS} from "../domain/check"
-import {FIELD_LABEL, GRADE_LABEL, taskText} from "../domain/labels"
+import {FIELD_LABEL, GRADE_LABEL, taskLabel} from "../domain/labels"
 import {display} from "../domain/notes"
 import {buildPlacement, gradeOf, notesFor, SKILLS} from "../domain/placement"
 import {useStudy} from "../store/study"
@@ -53,7 +53,7 @@ const question = computed(() => questions.value[index.value] ?? null)
 const note = computed(() => (question.value ? notesById.value.get(question.value.noteId) : undefined))
 const prompt = computed(() => (question.value && note.value ? display(note.value, question.value.given) : ""))
 const sub = computed(() => (question.value?.given === "ru" && note.value?.hint ? `(${note.value.hint})` : ""))
-const skillLabel = computed(() => SKILLS.find((s) => s.key === question.value?.skill)?.label ?? "")
+const task = computed(() => taskLabel(question.value?.given ?? "v1", question.value?.ask ?? "ru"))
 const progress = computed(() => `${(index.value / Math.max(1, questions.value.length)) * 100}%`)
 
 const summary = computed(() =>
@@ -270,7 +270,9 @@ onBeforeUnmount(() => {
 
       <section v-else-if="stage === 'run' && question" class="test-section">
         <div class="meta">
-          <span>{{ skillLabel }} · {{ taskText({given: question.given, ask: question.ask, mode: question.mode, options: []}) }}</span>
+          <span
+            >To <b>{{ task.name }}</b> ({{ task.direction }})</span
+          >
           <span>{{ index + 1 }} / {{ questions.length }}</span>
         </div>
         <div class="test-bar" aria-hidden="true"><i :style="{width: progress}" /></div>
