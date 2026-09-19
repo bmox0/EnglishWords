@@ -70,6 +70,7 @@ Cards follow Anki's v3 defaults: learning steps of 1 and 10 minutes, then 1 day 
 
 - **Automatic grades.** Every answer is graded on its own: Again for a miss, "don't know" or a peek; Hard for a typo or a right answer slower than 12 s when picking (20 s when typing); Good otherwise. Easy is never given automatically. Keys 1–4 change the grade.
 - **Unlocking.** A new word starts with EN → RU. RU → EN opens the day after EN → RU is learned, and forms open the day after RU → EN. Opened cards use the daily new-card limit before new words do.
+- **Blocks by task.** The day's cards come one task at a time: EN → RU, then RU → EN, then the forms one direction at a time (V1 → V2, V1 → V3, V2 → V1, V3 → V1, RU → V2, RU → V3). A forms card asks one direction a day. A missed card comes back in its own block, and the next block starts once the mistakes are cleared. Practice rounds keep the same order.
 - **No siblings back to back.** Cards of the same word never come one right after another.
 
 ## Placement test

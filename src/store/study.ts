@@ -3,7 +3,7 @@ import {computed, inject, markRaw, reactive} from "vue"
 import {buildCards, groupByNote, stateOf} from "../domain/cards"
 import {checkAnswer, gradeAnswer, gradeReason} from "../domain/check"
 import {freshDay, rollDay} from "../domain/day"
-import {makeExercise} from "../domain/exercise"
+import {makeExercise, taskIndex} from "../domain/exercise"
 import {cardGrades, doneEntry} from "../domain/placement"
 import {buildQueue, pickNext} from "../domain/queue"
 import {display} from "../domain/notes"
@@ -134,7 +134,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     if (!card) return
     state.session.cardId = card.id
     state.session.shownAt = clock()
-    state.session.exercise = makeExercise(card, state.settings.answerMode, allNotes, random)
+    state.session.exercise = makeExercise(card, state.settings.answerMode, allNotes, state.day.index, random)
   }
 
   function ensureCurrent() {
@@ -235,16 +235,21 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     start(practice ? (state.cards.find((c) => c.id === practice.cardIds[practice.index]) ?? null) : null)
   }
 
-  /** Starts a practice round over up to 20 cards with mistakes, in random order; answers there do not touch the schedule. */
+  /**
+   * Starts a practice round over up to 20 random cards with mistakes, in blocks by task like the day's cards;
+   * answers there do not touch the schedule.
+   */
   function startPractice() {
-    const ids = [...mistakeIds.value]
-    for (let i = ids.length - 1; i > 0; i--) {
+    const cards = state.cards.filter((c) => mistakeIds.value.includes(c.id))
+    for (let i = cards.length - 1; i > 0; i--) {
       const j = Math.floor(random() * (i + 1))
-      ;[ids[i], ids[j]] = [ids[j] as string, ids[i] as string]
+      ;[cards[i], cards[j]] = [cards[j] as Card, cards[i] as Card]
     }
-    if (!ids.length) return
+    if (!cards.length) return
+    const task = (c: Card) => taskIndex(c, state.day.index)
+    const picked = cards.slice(0, PRACTICE_SIZE).sort((a, b) => task(a) - task(b))
     state.practiceResult = null
-    state.practice = {cardIds: ids.slice(0, PRACTICE_SIZE), index: 0, right: 0}
+    state.practice = {cardIds: picked.map((c) => c.id), index: 0, right: 0}
     startPracticeCard()
   }
 

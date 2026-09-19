@@ -2,6 +2,7 @@ import {describe, expect, it} from "vitest"
 
 import {LIMITS} from "../domain/check"
 import {stateOf} from "../domain/cards"
+import {taskIndex} from "../domain/exercise"
 import {freshState, MINUTE, nextState} from "../domain/scheduler"
 import {STORAGE_KEY} from "../domain/storage"
 import {createStudy, DOUBLE_TAP_MS} from "./study"
@@ -308,6 +309,20 @@ describe("study session", () => {
     expect(study.state.practiceResult).toEqual({right: 1, total: 1})
     expect(JSON.stringify(study.state.cards.map((c) => [c.id, c.type, c.due, c.ivl]))).toBe(before)
     expect(study.state.day.done).toHaveLength(2)
+  })
+
+  it("practices mistakes in blocks by task", () => {
+    const store = memoryStore()
+    const lapsed = {...freshState(), type: "review", ivl: 5, due: T + 5 * 24 * 60 * MINUTE, reps: 4, lapses: 1}
+    const kinds = ["forms", "ru_en", "en_ru"]
+    const cards = Object.fromEntries([DO, MAKE, WALK].flatMap((n) => kinds.map((kind) => [`${n.id}:${kind}`, lapsed])))
+    store.data.set(STORAGE_KEY, JSON.stringify({version: 1, cards}))
+    const {study} = setup([DO, MAKE, WALK], store)
+    study.startPractice()
+    const practiced = study.state.practice!.cardIds.map((id) => study.state.cards.find((c) => c.id === id)!)
+    expect(practiced.map((c) => c.kind)).toEqual(["en_ru", "en_ru", "en_ru", "ru_en", "ru_en", "ru_en", "forms", "forms", "forms"])
+    const tasks = practiced.map((c) => taskIndex(c, study.state.day.index))
+    expect(tasks).toEqual([...tasks].sort((a, b) => a - b))
   })
 
   it("survives corrupt storage", () => {

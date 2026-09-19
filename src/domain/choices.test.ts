@@ -54,9 +54,9 @@ describe("buildOptions", () => {
 describe("answer mode", () => {
   it("builds options for picking and for typing or picking, and none for typing only", () => {
     const [card] = buildCards([note("verb-go")], {})
-    expect(makeExercise(card!, "choice", NOTES, seeded(1))).toMatchObject({given: "v1", ask: "ru", mode: "choice"})
-    expect(makeExercise(card!, "choice", NOTES, seeded(1)).options).toHaveLength(4)
-    expect(makeExercise(card!, "both", NOTES, seeded(1)).options).toContain("идти")
-    expect(makeExercise(card!, "type", NOTES, seeded(1)).options).toEqual([])
+    expect(makeExercise(card!, "choice", NOTES, 0, seeded(1))).toMatchObject({given: "v1", ask: "ru", mode: "choice"})
+    expect(makeExercise(card!, "choice", NOTES, 0, seeded(1)).options).toHaveLength(4)
+    expect(makeExercise(card!, "both", NOTES, 0, seeded(1)).options).toContain("идти")
+    expect(makeExercise(card!, "type", NOTES, 0, seeded(1)).options).toEqual([])
   })
 })

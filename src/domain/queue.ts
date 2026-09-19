@@ -1,4 +1,5 @@
 import {groupByNote, isUnlocked} from "./cards"
+import {taskIndex} from "./exercise"
 import {dayOf, MINUTE, SCHEDULER} from "./scheduler"
 
 import type {Card} from "./cards"
@@ -51,16 +52,25 @@ export function buildQueue(cards: Card[], day: DayProgress, t: number, newPerDay
 }
 
 /**
- * The next card: due learning cards first, then reviews and new cards mixed evenly, then learning cards due soon.
- * A card of the note that was just answered is skipped while anything else is available, so siblings never come back to back.
+ * The next card. Cards come in blocks by task, in the order of `TASKS`, so the kind of question changes only between blocks.
+ * Within a block: due learning cards first, then reviews and new cards mixed evenly, then learning cards due soon,
+ * so the block's mistakes are cleared before the next block starts.
+ * A card of the note that was just answered is skipped while anything else in the block is available.
  */
 export function pickNext(queue: Queue, day: DayProgress): Card | null {
+  const task = (c: Card) => taskIndex(c, day.index)
+  const available = [...queue.learnDue, ...queue.reviews, ...queue.news, ...queue.learnAhead]
+  if (!available.length) return null
+  const block = Math.min(...available.map(task))
+  const inBlock = (cards: Card[]) => cards.filter((c) => task(c) === block)
+  const reviews = inBlock(queue.reviews)
+  const news = inBlock(queue.news)
   const last = day.done.at(-1)?.noteId
-  const r = queue.reviews.length
-  const n = queue.news.length
+  const r = reviews.length
+  const n = news.length
   const newFirst = r && n ? day.newDone / (day.newDone + n) < day.revDone / (day.revDone + r) : !r
-  const middle = newFirst ? [...queue.news, ...queue.reviews] : [...queue.reviews, ...queue.news]
-  const order = [...queue.learnDue, ...middle, ...queue.learnAhead]
+  const middle = newFirst ? [...news, ...reviews] : [...reviews, ...news]
+  const order = [...inBlock(queue.learnDue), ...middle, ...inBlock(queue.learnAhead)]
   return order.find((c) => c.note.id !== last) ?? order[0] ?? null
 }
 
