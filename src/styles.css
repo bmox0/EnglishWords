@@ -18,7 +18,7 @@
   --mature: #23794d;
   --thumb: rgba(27, 34, 51, 0.16);
   --thumb-hover: rgba(27, 34, 51, 0.34);
-  --mono: "DM Mono", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --mono: "Victor Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --display: var(--mono);
   --ui: var(--mono);
   color-scheme: light;
@@ -318,7 +318,7 @@ kbd {
   font-weight: 500;
 }
 .prompt {
-  font: 500 min(96px, 12vh, 100cqi / (var(--len, 6) * 0.62)) / 1.05 var(--display);
+  font: 600 min(96px, 12vh, 100cqi / (var(--len, 6) * 0.62)) / 1.05 var(--display);
   letter-spacing: -0.02em;
   margin: 0;
   overflow-wrap: anywhere;
