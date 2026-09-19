@@ -21,11 +21,12 @@ pnpm build           # static site in dist/
 - `src/styles.css`: every style. Colour tokens live on `:root` and `:root.dark`.
 - `data/<NN>-<set>.jsonl`: the words, loaded in number order. Adding words goes through the `add-words` skill in `.claude/skills/`.
 - `scripts/xlsx-to-jsonl.mjs`: the spreadsheet importer, with no dependencies.
+- PWA: `public/manifest.webmanifest` and the icons in `public/`, and `src/sw.js`, the service worker. The `serviceWorker` plugin in `vite.config.ts` builds it into `dist/sw.js` with the build version and every file to precache. Pages load network-first; built files and Google Fonts load cache-first. `main.ts` registers it in production only.
 
 ## Invariants
 
 - Progress is keyed by card id `<note id>:<kind>`. Never rename or reuse a note id, or learners lose progress.
-- localStorage keys: `english-words:v1` holds progress and settings, `english-words:dark` holds the theme. The origin `bmox0.github.io` is shared with other sites, so every key keeps the `english-words:` prefix. A change to the saved shape needs a new version and a migration in `src/domain/storage.ts`.
+- localStorage keys: `english-words:v1` holds progress and settings, `english-words:dark` holds the theme. The origin `bmox0.github.io` is shared with other sites, so every key keeps the `english-words:` prefix, and so does every Cache Storage name in `src/sw.js`. A change to the saved shape needs a new version and a migration in `src/domain/storage.ts`.
 - The UI is in English; only translations and hints are Russian.
 - Scheduling follows Anki's SM-2 defaults (`SCHEDULER` in `src/domain/scheduler.ts`). Any change there needs a test in `scheduler.test.ts` or `queue.test.ts`.
 

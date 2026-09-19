@@ -15,3 +15,9 @@ function browserStorage(): Storage | null {
 }
 
 createApp(App).provide(StudyKey, createStudy(NOTES, browserStorage())).mount("#app")
+
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch((error) => console.error("Could not register the service worker", error))
+  })
+}

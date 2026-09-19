@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "English Verbs",
+  "short_name": "Verbs",
+  "description": "Learn English verbs by typing: translation both ways and the past forms, scheduled like Anki.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e3e8ef",
+  "theme_color": "#e3e8ef",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

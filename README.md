@@ -12,7 +12,7 @@ Learn English verbs by typing them: the translation in both directions and the p
 - **Type or pick.** By default the answer field has four options below it: type the answer, or pick an option when you know the word but not the exact translation asked. **Settings → Answers** can switch to typing only or picking only (handy on a phone). The wrong options are easy to confuse with the right one: other forms of the same verb, the `-ed` guess (`goed`), words spelled alike.
 - **Placement test.** Go through a whole topic in one run. The saved answers count like answers on the cards.
 - **After the daily plan.** **Learn 10 more cards** raises today's new-card limit. **Practice mistakes** drills up to 20 cards you got wrong without changing when they come back.
-- **Anywhere.** Works on a phone (the table becomes a full-screen sheet) and has a light and a dark theme.
+- **Anywhere.** Works on a phone (the table becomes a full-screen sheet) and has a light and a dark theme. It installs as an app (Add to Home Screen, or Install in a desktop browser) and works offline after the first visit. On an iPhone the installed app keeps its own progress, apart from Safari: export it in Safari and import it in the app to carry it over.
 - **No account.** Progress stays in your browser and can be exported to a file.
 
 ## Keys
