@@ -30,6 +30,22 @@ describe("validateNotes", () => {
     ])
   })
 
+  it("reports malformed ids, repeated words and shared translations without a hint", () => {
+    const notes = parseNotes(
+      [
+        '{"id":"Verb_Go","pos":"verb","en":"go","ru":["идти"],"v2":["went"],"v3":["gone"],"tags":[]}',
+        '{"id":"verb-go-2","pos":"verb","en":"Go","ru":["ехать"],"v2":["went"],"v3":["gone"],"tags":[]}',
+        '{"id":"verb-do","pos":"verb","en":"do","ru":["делать"],"v2":["did"],"v3":["done"],"tags":[],"hint":"выполнять действие"}',
+        '{"id":"verb-make","pos":"verb","en":"make","ru":["делать"],"v2":["made"],"v3":["made"],"tags":[]}',
+      ].join("\n"),
+    )
+    expect(validateNotes(notes)).toEqual([
+      "note #1 (Verb_Go): id must look like <pos>-<word> in lowercase, e.g. verb-get",
+      'note #2 (verb-go-2): verb "Go" is already listed as Verb_Go',
+      'verb-make: shares the translation "делать" with do, so it needs a hint',
+    ])
+  })
+
   it("names the broken line", () => {
     expect(() => parseNotes('{"id":"a"}\n\n{oops', "extra.jsonl")).toThrow("extra.jsonl:3: invalid JSON")
   })
