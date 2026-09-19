@@ -189,16 +189,7 @@ onMounted(focusInput)
         <h1 class="prompt" :lang="session.exercise.given === 'ru' ? 'ru' : 'en'" :style="{'--len': Math.max(6, prompt.length)}">{{ prompt }}</h1>
         <div v-if="sub" class="sub" :lang="session.exercise.given === 'v1' ? 'ru' : 'en'">{{ sub }}</div>
 
-        <ChoiceOptions
-          v-if="session.exercise.mode === 'choice'"
-          :options="session.exercise.options"
-          :correct="display(card.note, session.exercise.ask)"
-          :chosen="session.chosen"
-          :result="session.result"
-          :lang="session.exercise.ask === 'ru' ? 'ru' : 'en'"
-          @choose="study.choose"
-        />
-        <div v-else class="fields">
+        <div v-if="session.exercise.mode !== 'choice'" class="fields">
           <div class="field" :class="session.result">
             <input
               ref="input"
@@ -221,6 +212,15 @@ onMounted(focusInput)
           </div>
         </div>
 
+        <ChoiceOptions
+          v-if="session.exercise.options.length"
+          :options="session.exercise.options"
+          :correct="display(card.note, session.exercise.ask)"
+          :chosen="session.chosen"
+          :result="session.result"
+          :lang="session.exercise.ask === 'ru' ? 'ru' : 'en'"
+          @choose="study.choose"
+        />
         <div v-if="session.other" class="msg" role="status">
           <b lang="en">{{ session.other.en }}</b> also means «<span lang="ru">{{ display(session.other, "ru") }}</span
           >», but a different verb is asked here. Try again.
@@ -236,6 +236,7 @@ onMounted(focusInput)
         <div v-else-if="!session.result" class="hint">
           <button type="button" class="check-btn" @mousedown.prevent @click="study.check()">Check</button>
           <span class="keys"><kbd>Enter</kbd> check</span>
+          <span v-if="session.exercise.mode === 'both'" class="keys"><kbd>1</kbd>–<kbd>4</kbd> pick</span>
           <span>Leave it empty if you don't remember</span>
         </div>
         <div v-else ref="after" class="after">
@@ -243,7 +244,7 @@ onMounted(focusInput)
           <FormsRow :note="card.note" :exercise="session.exercise" />
           <div v-if="study.state.practice" class="hint">
             <button type="button" class="btn primary" @mousedown.prevent @click="study.practiceNext()">Next</button>
-            <span v-if="session.exercise.mode === 'choice'">or tap any option again</span>
+            <span v-if="session.exercise.options.length">or tap any option again</span>
             <span class="keys"><kbd>Enter</kbd> next</span>
             <button type="button" class="text-btn" @click="study.endPractice()">End practice</button>
           </div>
@@ -252,8 +253,8 @@ onMounted(focusInput)
               <GradeResult :card="card" :grade="study.autoGrade.value" :reason="study.autoGradeReason.value" :now="study.state.now" />
               <button type="button" class="btn primary" @mousedown.prevent @click="study.next()">Next</button>
             </div>
-            <div class="hint" :class="{keys: session.exercise.mode !== 'choice'}">
-              <span v-if="session.exercise.mode === 'choice'">Tap any option again to go on</span>
+            <div class="hint" :class="{keys: !session.exercise.options.length}">
+              <span v-if="session.exercise.options.length">Tap any option again to go on</span>
               <span class="keys"><kbd>Enter</kbd> next</span>
               <span class="keys"><kbd>1</kbd>–<kbd>4</kbd> change the grade</span>
             </div>

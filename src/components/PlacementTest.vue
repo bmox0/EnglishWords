@@ -2,30 +2,28 @@
 import {computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef} from "vue"
 
 import {checkAnswer, LIMITS} from "../domain/check"
-import {choiceChance} from "../domain/exercise"
 import {FIELD_LABEL, GRADE_LABEL, taskText} from "../domain/labels"
 import {display} from "../domain/notes"
-import {buildPlacement, gradeOf, kindOf, notesFor, SKILLS} from "../domain/placement"
+import {buildPlacement, gradeOf, notesFor, SKILLS} from "../domain/placement"
 import {useStudy} from "../store/study"
 import ChoiceOptions from "./ChoiceOptions.vue"
 
-import type {CardKind} from "../domain/cards"
 import type {Verdict} from "../domain/check"
-import type {Exercise} from "../domain/exercise"
+import type {AnswerInput, AnswerMode} from "../domain/exercise"
 import type {Note} from "../domain/notes"
 import type {PlacementAnswer, PlacementQuestion, Skill} from "../domain/placement"
 import type {Grade} from "../domain/scheduler"
 
 const open = defineModel<boolean>("open", {required: true})
 
-const SECONDS_PER_QUESTION: Record<Exercise["mode"], number> = {choice: 4, type: 8}
+const SECONDS_PER_QUESTION: Record<AnswerMode, number> = {choice: 4, type: 8, both: 6}
 const WORD_COUNTS = [100, 50, 20]
 const MIN_ANSWER_MS = 250
-const MODE_TEXT = {
-  auto: "about 40% picked from options and 60% typed, and a word you have not seen yet is always picked",
+const MODE_TEXT: Record<AnswerMode, string> = {
+  both: "type the answer or pick one of the four options below the field",
   type: "every answer is typed",
   choice: "every answer is picked from four options",
-} as const
+}
 
 const study = useStudy()
 const stage = ref<"intro" | "run" | "results">("intro")
@@ -43,34 +41,13 @@ let shownAt = 0
 const notesById = computed(() => new Map(study.notes.map((n) => [n.id, n])))
 const skillNotes = (key: Skill) => notesFor(key, study.notes)
 
-function chanceOf(noteId: string, kind: CardKind): number {
-  const card = study.cardsByNote.value.get(noteId)?.find((c) => c.kind === kind)
-  return choiceChance(card ?? {type: "new", kind}, study.state.settings.answerMode)
-}
-
-function modeOf(noteId: string, kind: CardKind): Exercise["mode"] {
-  return Math.random() < chanceOf(noteId, kind) ? "choice" : "type"
-}
-
 const counts = computed(() => Object.fromEntries(SKILLS.map((s) => [s.key, skillNotes(s.key).length])) as Record<Skill, number>)
 const most = computed(() => Math.max(0, ...selected.value.map((key) => counts.value[key])))
 const wordChoices = computed(() => WORD_COUNTS.filter((n) => n < most.value))
 const limit = computed(() => (wordCount.value !== null && wordCount.value < most.value ? wordCount.value : null))
 const asked = (key: Skill) => Math.min(counts.value[key], limit.value ?? Infinity)
 const total = computed(() => selected.value.reduce((sum, key) => sum + asked(key), 0))
-const minutes = computed(() => {
-  const seconds = selected.value
-    .flatMap((key) =>
-      skillNotes(key)
-        .slice(0, asked(key))
-        .map((note) => {
-          const chance = chanceOf(note.id, kindOf(key))
-          return chance * SECONDS_PER_QUESTION.choice + (1 - chance) * SECONDS_PER_QUESTION.type
-        }),
-    )
-    .reduce((sum, x) => sum + x, 0)
-  return Math.max(1, Math.round(seconds / 60))
-})
+const minutes = computed(() => Math.max(1, Math.round((total.value * SECONDS_PER_QUESTION[study.state.settings.answerMode]) / 60)))
 
 const question = computed(() => questions.value[index.value] ?? null)
 const note = computed(() => (question.value ? notesById.value.get(question.value.noteId) : undefined))
@@ -136,7 +113,7 @@ function focusInput() {
 }
 
 function start() {
-  questions.value = buildPlacement(study.notes, selected.value, limit.value ?? Infinity, modeOf)
+  questions.value = buildPlacement(study.notes, selected.value, limit.value ?? Infinity, study.state.settings.answerMode)
   answers.value = []
   index.value = 0
   applied.value = null
@@ -148,24 +125,24 @@ function start() {
   focusInput()
 }
 
-function record(text: string | null, verdict: Verdict) {
+function record(text: string | null, verdict: Verdict, mode: AnswerInput) {
   const q = question.value
   const ms = performance.now() - shownAt
   if (!q || ms < MIN_ANSWER_MS) return
-  answers.value.push({noteId: q.noteId, skill: q.skill, mode: q.mode, text, verdict, ms: Math.round(ms)})
+  answers.value.push({noteId: q.noteId, skill: q.skill, mode, text, verdict, ms: Math.round(ms)})
   index.value++
   typed.value = ""
   other.value = null
   shownAt = performance.now()
   if (index.value >= questions.value.length) stage.value = "results"
-  else if (question.value?.mode === "type") focusInput()
+  else if (question.value?.mode !== "choice") focusInput()
 }
 
 function choose(option: string | null) {
   const q = question.value
   const n = note.value
   if (!q || !n) return
-  record(option, option !== null && option === display(n, q.ask) ? "right" : "wrong")
+  record(option, option !== null && option === display(n, q.ask) ? "right" : "wrong", "choice")
 }
 
 function submitTyped() {
@@ -178,7 +155,7 @@ function submitTyped() {
     typed.value = ""
     return
   }
-  record(typed.value.trim() || null, result.verdict)
+  record(typed.value.trim() || null, result.verdict, "type")
 }
 
 function finish() {
@@ -202,7 +179,7 @@ function onKeydown(event: KeyboardEvent) {
     close()
     return
   }
-  if (stage.value !== "run" || question.value?.mode !== "choice") return
+  if (stage.value !== "run" || !question.value?.options.length) return
   if (["1", "2", "3", "4"].includes(event.key)) {
     event.preventDefault()
     const option = question.value.options[Number(event.key) - 1]
@@ -300,17 +277,7 @@ onBeforeUnmount(() => {
         <h1 class="prompt" :lang="question.given === 'ru' ? 'ru' : 'en'" :style="{'--len': Math.max(6, prompt.length)}">{{ prompt }}</h1>
         <div v-if="sub" class="sub" lang="ru">{{ sub }}</div>
 
-        <ChoiceOptions
-          v-if="question.mode === 'choice'"
-          :key="index"
-          :options="question.options"
-          correct=""
-          :chosen="null"
-          :result="null"
-          :lang="question.ask === 'ru' ? 'ru' : 'en'"
-          @choose="(i) => choose(question?.options[i] ?? null)"
-        />
-        <div v-else class="fields">
+        <div v-if="question.mode !== 'choice'" class="fields">
           <div class="field">
             <input
               ref="input"
@@ -330,6 +297,16 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
+        <ChoiceOptions
+          v-if="question.options.length"
+          :key="index"
+          :options="question.options"
+          correct=""
+          :chosen="null"
+          :result="null"
+          :lang="question.ask === 'ru' ? 'ru' : 'en'"
+          @choose="(i) => choose(question?.options[i] ?? null)"
+        />
         <div v-if="other" class="msg" role="status">
           <b lang="en">{{ other.en }}</b> also means «<span lang="ru">{{ display(other, "ru") }}</span
           >», but a different verb is asked here. Try again.
@@ -344,6 +321,7 @@ onBeforeUnmount(() => {
         <div v-else class="hint">
           <button type="button" class="check-btn" @mousedown.prevent @click="submitTyped">Next</button>
           <span class="keys"><kbd>Enter</kbd> next</span>
+          <span v-if="question.mode === 'both'" class="keys"><kbd>1</kbd>–<kbd>4</kbd> pick</span>
           <span>Empty means don't know</span>
           <button type="button" class="text-btn" @click="finish">Finish now</button>
         </div>

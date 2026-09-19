@@ -5,20 +5,20 @@ import {buildOptions} from "./choices"
 import type {CardKind} from "./cards"
 import type {Verdict} from "./check"
 import type {DoneEntry} from "./day"
-import type {Exercise} from "./exercise"
+import type {AnswerInput, AnswerMode} from "./exercise"
 import type {Field, Note} from "./notes"
 import type {Grade} from "./scheduler"
 
 /** What a placement question checks. Both form skills feed the one forms card. */
 export type Skill = "en_ru" | "ru_en" | "v2" | "v3"
 
-/** One placement question, answered by typing or by picking from `options`. */
+/** One placement question, answered by typing, by picking from `options`, or either way. */
 export interface PlacementQuestion {
   noteId: string
   skill: Skill
   given: Field
   ask: Field
-  mode: Exercise["mode"]
+  mode: AnswerMode
   options: string[]
 }
 
@@ -26,7 +26,7 @@ export interface PlacementQuestion {
 export interface PlacementAnswer {
   noteId: string
   skill: Skill
-  mode: Exercise["mode"]
+  mode: AnswerInput
   text: string | null
   verdict: Verdict
   ms: number
@@ -59,21 +59,17 @@ export function kindOf(skill: Skill): CardKind {
   return SKILLS.find((s) => s.key === skill)?.kind ?? "en_ru"
 }
 
-/**
- * Every question of the test: skill after skill, each skill on its first `limit` notes in deck order, shuffled;
- * `modeOf` picks typing or choosing per card.
- */
+/** Every question of the test: skill after skill, each skill on its first `limit` notes in deck order, shuffled; all asked in `mode`. */
 export function buildPlacement(
   notes: Note[],
   skills: Skill[],
   limit: number = Infinity,
-  modeOf: (noteId: string, kind: CardKind) => Exercise["mode"] = () => "choice",
+  mode: AnswerMode = "choice",
   random: () => number = Math.random,
 ): PlacementQuestion[] {
   return SKILLS.filter((s) => skills.includes(s.key)).flatMap((s) =>
     shuffle(notesFor(s.key, notes).slice(0, limit), random).map((note) => {
-      const mode = modeOf(note.id, s.kind)
-      const options = mode === "choice" ? buildOptions(note, s.given, s.ask, notes, random) : []
+      const options = mode === "type" ? [] : buildOptions(note, s.given, s.ask, notes, random)
       return {noteId: note.id, skill: s.key, given: s.given, ask: s.ask, mode, options}
     }),
   )

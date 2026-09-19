@@ -21,9 +21,9 @@ export interface Saved {
   tableOpen: boolean
 }
 
-export const DEFAULT_SETTINGS: Settings = {newPerDay: 20, answerMode: "auto"}
+export const DEFAULT_SETTINGS: Settings = {newPerDay: 20, answerMode: "both"}
 
-const ANSWER_MODES: AnswerMode[] = ["auto", "type", "choice"]
+const ANSWER_MODES: AnswerMode[] = ["both", "type", "choice"]
 
 /** Minimal storage surface, so tests can pass a fake. */
 export type KeyValueStore = Pick<Storage, "getItem" | "setItem" | "removeItem">

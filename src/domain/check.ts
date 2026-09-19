@@ -1,6 +1,6 @@
 import {valuesOf} from "./notes"
 
-import type {Exercise} from "./exercise"
+import type {AnswerInput, Exercise} from "./exercise"
 import type {Note} from "./notes"
 import type {Grade} from "./scheduler"
 
@@ -61,7 +61,7 @@ export function checkAnswer(note: Note, exercise: Pick<Exercise, "given" | "ask"
 }
 
 /** A right answer slower than `slow` ms counts as hard; typing gets more time. */
-export const LIMITS: Record<Exercise["mode"], {slow: number}> = {
+export const LIMITS: Record<AnswerInput, {slow: number}> = {
   choice: {slow: 12000},
   type: {slow: 20000},
 }
@@ -70,13 +70,13 @@ export const LIMITS: Record<Exercise["mode"], {slow: number}> = {
  * The grade an answer gets on its own: Again for a miss, "don't know" or a peek; Hard for a typo or a right answer
  * slower than the `slow` limit; Good otherwise. Easy is never given automatically.
  */
-export function gradeAnswer(verdict: Verdict, peeked: boolean, mode: Exercise["mode"], ms: number): Grade {
+export function gradeAnswer(verdict: Verdict, peeked: boolean, mode: AnswerInput, ms: number): Grade {
   if (peeked || verdict === "wrong") return 1
   return verdict === "close" || ms > LIMITS[mode].slow ? 2 : 3
 }
 
 /** Why `gradeAnswer` gave its grade, in a few words, so the rule is easy to remember. */
-export function gradeReason(verdict: Verdict, peeked: boolean, mode: Exercise["mode"], ms: number): string {
+export function gradeReason(verdict: Verdict, peeked: boolean, mode: AnswerInput, ms: number): string {
   const slow = LIMITS[mode].slow
   if (peeked) return "you peeked"
   if (verdict === "wrong") return "not right"

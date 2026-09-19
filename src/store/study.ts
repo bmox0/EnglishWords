@@ -3,7 +3,7 @@ import {computed, inject, markRaw, reactive} from "vue"
 import {buildCards, groupByNote, stateOf} from "../domain/cards"
 import {checkAnswer, gradeAnswer, gradeReason} from "../domain/check"
 import {freshDay, rollDay} from "../domain/day"
-import {makeExercise, modeFor} from "../domain/exercise"
+import {makeExercise} from "../domain/exercise"
 import {cardGrades, doneEntry} from "../domain/placement"
 import {buildQueue, pickNext} from "../domain/queue"
 import {display} from "../domain/notes"
@@ -13,7 +13,7 @@ import {loadSaved, parseSaved, writeSaved} from "../domain/storage"
 import type {Card} from "../domain/cards"
 import type {Verdict} from "../domain/check"
 import type {DayProgress} from "../domain/day"
-import type {Exercise} from "../domain/exercise"
+import type {AnswerInput, Exercise} from "../domain/exercise"
 import type {Note} from "../domain/notes"
 import type {PlacementAnswer} from "../domain/placement"
 import type {CardState, Grade} from "../domain/scheduler"
@@ -96,11 +96,12 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     return state.cards.filter((c) => c.type !== "new" && (wrongToday.has(c.id) || c.lapses > 0)).map((c) => c.id)
   })
   const current = computed(() => (state.session.cardId ? (state.cards.find((c) => c.id === state.session.cardId) ?? null) : null))
+  const answeredBy = computed<AnswerInput>(() => (state.session.chosen !== null || state.session.exercise?.mode === "choice" ? "choice" : "type"))
   const graded = computed(() => {
     const {result, peeked, exercise, shownAt, answeredAt} = state.session
     if (!result || !exercise) return null
     const ms = (answeredAt ?? shownAt) - shownAt
-    return {grade: gradeAnswer(result, peeked, exercise.mode, ms), reason: gradeReason(result, peeked, exercise.mode, ms)}
+    return {grade: gradeAnswer(result, peeked, answeredBy.value, ms), reason: gradeReason(result, peeked, answeredBy.value, ms)}
   })
   const autoGrade = computed(() => graded.value?.grade ?? null)
   const autoGradeReason = computed(() => graded.value?.reason ?? "")
@@ -133,8 +134,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     if (!card) return
     state.session.cardId = card.id
     state.session.shownAt = clock()
-    const today = {picked: state.day.done.filter((d) => d.mode === "choice").length, total: state.day.done.length}
-    state.session.exercise = makeExercise(card, modeFor(card, state.settings.answerMode, today, random), allNotes, random)
+    state.session.exercise = makeExercise(card, state.settings.answerMode, allNotes, random)
   }
 
   function ensureCurrent() {
@@ -175,7 +175,7 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
   function check() {
     const card = current.value
     const exercise = state.session.exercise
-    if (!card || exercise?.mode !== "type" || state.session.result) return
+    if (!card || !exercise || exercise.mode === "choice" || state.session.result) return
     const result = checkAnswer(card.note, exercise, state.session.answer, allNotes)
     if (result.kind === "other") {
       state.session.other = result.other
@@ -192,24 +192,26 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
     if (!state.session.result) state.session.shownAt = clock()
   }
 
-  /** Answers a choice question with the option at `index`; tapping an option again after the answer moves on, like Enter. */
+  /** Answers with the option at `index`, which also fills the field; tapping an option again after the answer moves on, like Enter. */
   function choose(index: number) {
     const card = current.value
     const exercise = state.session.exercise
     const option = exercise?.options[index]
-    if (!card || exercise?.mode !== "choice" || option === undefined) return
+    if (!card || !exercise || option === undefined) return
     if (state.session.result) {
       if (clock() - (state.session.answeredAt ?? 0) >= DOUBLE_TAP_MS) next()
       return
     }
     state.session.chosen = index
+    state.session.answer = option
+    state.session.other = null
     state.session.result = option === display(card.note, exercise.ask) ? "right" : "wrong"
     state.session.answeredAt = clock()
   }
 
-  /** Gives up on a choice question without guessing. */
+  /** Gives up on a question with options without guessing. */
   function giveUp() {
-    if (!current.value || state.session.exercise?.mode !== "choice" || state.session.result) return
+    if (!current.value || !state.session.exercise?.options.length || state.session.result) return
     state.session.result = "wrong"
     state.session.answeredAt = clock()
   }
@@ -281,9 +283,9 @@ export function createStudy(notes: Note[], store: KeyValueStore | null, clock: (
       grade: value,
       given: exercise.given,
       ask: exercise.ask,
-      text: exercise.mode === "choice" ? (exercise.options[state.session.chosen ?? -1] ?? "") : state.session.answer,
+      text: state.session.answer,
       ok: result === "right",
-      mode: exercise.mode,
+      mode: answeredBy.value,
     })
     persist()
     state.session = freshSession()

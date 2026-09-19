@@ -47,26 +47,7 @@ function answerCurrent(study: ReturnType<typeof createStudy>, text: string) {
 }
 
 describe("answering by choice", () => {
-  it("types a word after its first look, even after a mistake", () => {
-    const study = createStudy(
-      [DO, WALK],
-      null,
-      () => T,
-      () => 0,
-    )
-    const first = study.state.session.exercise!
-    expect(first.mode).toBe("choice")
-    study.choose(first.options.findIndex((o) => o !== "делать"))
-    study.grade(1)
-    expect(study.current.value?.id).toBe("verb-walk:en_ru")
-    expect(study.state.session.exercise?.mode).toBe("choice")
-    study.giveUp()
-    study.grade(1)
-    expect(study.current.value?.id).toBe("verb-do:en_ru")
-    expect(study.state.session.exercise).toMatchObject({mode: "type", options: []})
-  })
-
-  it("offers options for a brand-new word in auto mode", () => {
+  it("shows a field with options by default and takes a typed or a picked answer", () => {
     const study = createStudy(
       [DO, MAKE, WALK],
       null,
@@ -74,16 +55,20 @@ describe("answering by choice", () => {
       () => 0,
     )
     const exercise = study.state.session.exercise!
-    expect(exercise.mode).toBe("choice")
+    expect(exercise.mode).toBe("both")
     expect(exercise.options).toContain("делать")
     study.setAnswer("делать")
     study.check()
-    expect(study.state.session.result).toBeNull()
-    study.choose(exercise.options.indexOf("делать"))
     expect(study.state.session.result).toBe("right")
-    expect(study.autoGrade.value).toBe(3)
-    study.grade(3)
-    expect(study.state.day.done[0]).toMatchObject({text: "делать", ok: true})
+    study.next()
+    const picked = study.state.session.exercise!
+    study.choose(picked.options.indexOf("делать"))
+    expect(study.state.session).toMatchObject({result: "right", answer: "делать"})
+    study.next()
+    expect(study.state.day.done.map((d) => [d.cardId, d.text, d.mode])).toEqual([
+      ["verb-do:en_ru", "делать", "type"],
+      ["verb-make:en_ru", "делать", "choice"],
+    ])
   })
 
   it("grades a wrong option or a give-up as Again", () => {

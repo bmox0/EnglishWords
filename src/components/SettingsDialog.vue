@@ -26,9 +26,9 @@ function onNewPerDay(event: Event) {
 }
 
 const ANSWER_MODES: {value: AnswerMode; label: string}[] = [
-  {value: "auto", label: "Mix: about 40% picked, 60% typed"},
+  {value: "both", label: "Type or pick"},
   {value: "type", label: "Always type"},
-  {value: "choice", label: "Always choose"},
+  {value: "choice", label: "Always pick"},
 ]
 
 function onAnswerMode(value: AnswerMode) {

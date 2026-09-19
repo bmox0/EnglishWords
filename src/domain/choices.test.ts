@@ -2,7 +2,8 @@ import {describe, expect, it} from "vitest"
 
 import {buildOptions, regularPast} from "./choices"
 import {NOTES} from "./data"
-import {choiceChance, modeFor} from "./exercise"
+import {buildCards} from "./cards"
+import {makeExercise} from "./exercise"
 
 const note = (id: string) => NOTES.find((n) => n.id === id)!
 const seeded = (seed: number) => () => {
@@ -51,32 +52,11 @@ describe("buildOptions", () => {
 })
 
 describe("answer mode", () => {
-  it("always picks for the first look at a brand-new word in auto mode", () => {
-    expect(choiceChance({type: "new", kind: "en_ru"}, "auto", {picked: 10, total: 10})).toBe(1)
-  })
-
-  it("steers the rest of the day towards 40% picked in auto mode", () => {
-    expect(choiceChance({type: "review", kind: "en_ru"}, "auto")).toBeCloseTo(0.4)
-    expect(choiceChance({type: "review", kind: "en_ru"}, "auto", {picked: 4, total: 10})).toBeCloseTo(0.4)
-    expect(choiceChance({type: "new", kind: "ru_en"}, "auto", {picked: 8, total: 10})).toBe(0)
-    expect(choiceChance({type: "learning", kind: "forms"}, "auto", {picked: 0, total: 10})).toBe(1)
-  })
-
-  it("lands near 40% picked over a day", () => {
-    let seed = 42
-    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647
-    const today = {picked: 0, total: 0}
-    for (let i = 0; i < 200; i++) {
-      const card = i % 4 === 0 ? ({type: "new", kind: "en_ru"} as const) : ({type: "review", kind: "ru_en"} as const)
-      if (modeFor(card, "auto", today, random) === "choice") today.picked++
-      today.total++
-    }
-    expect(today.picked / today.total).toBeGreaterThan(0.35)
-    expect(today.picked / today.total).toBeLessThan(0.45)
-  })
-
-  it("follows a fixed setting", () => {
-    expect(modeFor({type: "review", kind: "ru_en"}, "choice")).toBe("choice")
-    expect(modeFor({type: "new", kind: "en_ru"}, "type")).toBe("type")
+  it("builds options for picking and for typing or picking, and none for typing only", () => {
+    const [card] = buildCards([note("verb-go")], {})
+    expect(makeExercise(card!, "choice", NOTES, seeded(1))).toMatchObject({given: "v1", ask: "ru", mode: "choice"})
+    expect(makeExercise(card!, "choice", NOTES, seeded(1)).options).toHaveLength(4)
+    expect(makeExercise(card!, "both", NOTES, seeded(1)).options).toContain("идти")
+    expect(makeExercise(card!, "type", NOTES, seeded(1)).options).toEqual([])
   })
 })

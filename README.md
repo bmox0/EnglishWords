@@ -9,7 +9,7 @@ Learn English verbs by typing them: the translation in both directions and the p
 - **Dictation.** Each question asks one thing: a translation, the infinitive, or one past form. You type the answer or pick it from four options. Typos count as "almost", and a verb that shares the translation (`make` for делать) gets another try instead of a miss.
 - **Verb table.** The table shows every verb with its forms, translation and progress. It has search and filters: All, Today, Mistakes, Learning, New, Learned. The verb on the card is hidden; you can peek, but then the card gets Again.
 - **Anki scheduling.** Each verb has separate cards that open one by one: EN → RU, then RU → EN, then forms, for every verb.
-- **Mixed answers.** About 40% of answers are picked from four options and 60% are typed, balanced over the day. The wrong options are easy to confuse with the right one: other forms of the same verb, the `-ed` guess (`goed`), words spelled alike.
+- **Type or pick.** By default the answer field has four options below it: type the answer, or pick an option when you know the word but not the exact translation asked. **Settings → Answers** can switch to typing only or picking only (handy on a phone). The wrong options are easy to confuse with the right one: other forms of the same verb, the `-ed` guess (`goed`), words spelled alike.
 - **Placement test.** Go through a whole topic in one run. The saved answers count like answers on the cards.
 - **After the daily plan.** **Learn 10 more cards** raises today's new-card limit. **Practice mistakes** drills up to 20 cards you got wrong without changing when they come back.
 - **Anywhere.** Works on a phone (the table becomes a full-screen sheet) and has a light and a dark theme.
@@ -33,7 +33,6 @@ Cards follow Anki's v3 defaults: learning steps of 1 and 10 minutes, then 1 day 
 - **Automatic grades.** Every answer is graded on its own: Again for a miss, "don't know" or a peek; Hard for a typo or a right answer slower than 12 s when picking (20 s when typing); Good otherwise. Easy is never given automatically. Keys 1–4 change the grade, and tapping an option again after the answer goes to the next card.
 - **Unlocking.** A new word starts with EN → RU. RU → EN opens the day after EN → RU is learned, and forms open the day after RU → EN. Opened cards use the daily new-card limit before new words do.
 - **No siblings back to back.** Cards of the same word never come one right after another.
-- **Answer modes.** **Settings → Answers** switches between the 40/60 mix, always typing and always picking. The first look at a brand-new word is always picked.
 
 ## Placement test
 

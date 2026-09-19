@@ -37,11 +37,10 @@ describe("buildPlacement", () => {
     expect(questions.filter((q) => q.skill === "en_ru").some((q) => q.options.some((o) => !first.has(o)))).toBe(true)
   })
 
-  it("asks by typing or choosing as the mode function says", () => {
-    const questions = buildPlacement(NOTES, ["en_ru"], Infinity, (id) => (id === "verb-go" ? "type" : "choice"))
-    const go = questions.find((q) => q.noteId === "verb-go")!
-    expect(go).toMatchObject({mode: "type", options: []})
-    expect(questions.filter((q) => q.mode === "choice").every((q) => q.options.length === 4)).toBe(true)
+  it("asks every question in the answer mode from Settings", () => {
+    expect(buildPlacement(NOTES, ["en_ru"], 5, "type").every((q) => q.mode === "type" && !q.options.length)).toBe(true)
+    expect(buildPlacement(NOTES, ["en_ru"], 5, "both").every((q) => q.mode === "both" && q.options.length === 4)).toBe(true)
+    expect(buildPlacement(NOTES, ["en_ru"], 5, "choice").every((q) => q.mode === "choice" && q.options.length === 4)).toBe(true)
   })
 
   it("puts the right answer among the options", () => {

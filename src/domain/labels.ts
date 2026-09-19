@@ -15,7 +15,7 @@ export const FIELD_LABEL: Record<Field, string> = {ru: "translation", v1: "infin
 
 /** The instruction above the prompt. */
 export function taskText(exercise: Exercise): string {
-  const verb = exercise.mode === "choice" ? "Pick" : "Type"
+  const verb = {both: "Type or pick", type: "Type", choice: "Pick"}[exercise.mode]
   if (exercise.ask === "ru") return `${verb} the translation`
   if (exercise.ask === "v1") return exercise.given === "ru" ? `${verb} the English word` : `${verb} the infinitive`
   return `${verb} the ${FIELD_LABEL[exercise.ask]}`

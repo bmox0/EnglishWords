@@ -41,13 +41,13 @@ function onKeydown(event: KeyboardEvent) {
     }
     return
   }
-  if (study.state.session.exercise?.mode === "choice") {
-    if (["1", "2", "3", "4"].includes(event.key)) {
-      event.preventDefault()
-      study.choose(Number(event.key) - 1)
-    }
+  const exercise = study.state.session.exercise
+  if (exercise?.options.length && ["1", "2", "3", "4"].includes(event.key)) {
+    event.preventDefault()
+    study.choose(Number(event.key) - 1)
     return
   }
+  if (exercise?.mode === "choice") return
   if (event.key === "Enter" && target.matches("[data-answer]")) {
     event.preventDefault()
     study.check()
