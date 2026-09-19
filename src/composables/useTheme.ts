@@ -34,30 +34,19 @@ watch(
 
 systemDark.addEventListener("change", (event) => (isDark.value = event.matches))
 
-function setCircleClip(origin: Element | null | undefined) {
-  const rect = origin?.getBoundingClientRect()
-  const x = rect ? rect.left + rect.width / 2 : window.innerWidth
-  const y = rect ? rect.top + rect.height / 2 : 0
-  const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
-  const style = document.documentElement.style
-  style.setProperty("--vt-clip-from", `circle(0px at ${x}px ${y}px)`)
-  style.setProperty("--vt-clip-to", `circle(${radius}px at ${x}px ${y}px)`)
-}
-
-/** Switches between the light and dark theme with a circle that grows from `origin`, where the browser supports view transitions. */
-async function toggleTheme(origin?: Element | null) {
+/** Switches to the light or dark theme, revealing it with a diagonal wipe from the top-right corner where the browser supports view transitions. */
+async function setTheme(dark: boolean) {
+  if (dark === isDark.value) return
   const apply = async () => {
-    isDark.value = !isDark.value
+    isDark.value = dark
     await nextTick()
   }
-  if (typeof document.startViewTransition !== "function") {
+  if (typeof document.startViewTransition !== "function" || animating) {
     await apply()
     return
   }
-  if (animating) return
   animating = true
   try {
-    setCircleClip(origin)
     await document.startViewTransition(apply).finished.catch(() => undefined)
   } finally {
     animating = false
@@ -66,5 +55,5 @@ async function toggleTheme(origin?: Element | null) {
 
 /** The light or dark theme: follows the system until changed, remembered in localStorage, applied as the `dark` class on `<html>`. */
 export function useTheme() {
-  return {isDark: readonly(isDark), toggleTheme}
+  return {isDark: readonly(isDark), setTheme}
 }

@@ -7,7 +7,7 @@ Learn English verbs by typing: the translation both ways and the past forms, sch
 - Left: a dictation. Each question asks one thing — the translation, the infinitive, or one past form. Press Enter to check, then Enter again to accept the suggested grade (or 1–4 for another one).
 - Right: the verb table with search, filters and per-verb progress. The verb on the card is hidden; clicking it lets you peek, and the grade offered becomes Again.
 - By default answers are mixed: about 40% are picked from four options and 60% are typed, balanced over the day. The first look at a brand-new word is always picked. **Settings → Answers** switches to always typing or always choosing. Wrong options are words that are easy to mix up: other forms of the same verb, the `-ed` guess (`goed`), similar spellings; a word with the same translation is never offered.
-- The sun/moon button switches between the light and dark theme. It follows the system theme until you pick one, and remembers the choice.
+- **Settings → Theme** switches between light and dark with a diagonal wipe. The theme follows the system until you pick one, and remembers the choice.
 - On a phone the table opens as a full-screen sheet from the **Table** button.
 
 ## Placement test

@@ -6,7 +6,6 @@ import {FIELD_LABEL, GRADE_LABEL, taskText} from "../domain/labels"
 import {display} from "../domain/notes"
 import {remainingCount} from "../domain/queue"
 import {dayOf, MINUTE} from "../domain/scheduler"
-import {useTheme} from "../composables/useTheme"
 import {useStudy} from "../store/study"
 import ChoiceOptions from "./ChoiceOptions.vue"
 import FormsRow from "./FormsRow.vue"
@@ -16,7 +15,6 @@ const props = defineProps<{compact: boolean; tableVisible: boolean; blocked: boo
 const emit = defineEmits<{"toggle-table": []; "open-settings": []; "open-test": []}>()
 
 const study = useStudy()
-const {isDark, toggleTheme} = useTheme()
 const session = computed(() => study.state.session)
 const card = study.current
 const input = ref<HTMLInputElement | null>(null)
@@ -121,32 +119,6 @@ onMounted(focusInput)
             >
               <circle cx="12" cy="13" r="8" />
               <path d="M12 9v4l2.5 2.5M9 2h6" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            class="icon-btn"
-            :aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-            :title="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-            @click="toggleTheme($event.currentTarget as Element)"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path
-                v-if="isDark"
-                d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
-              />
-              <path
-                v-else
-                d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-              />
             </svg>
           </button>
           <button type="button" class="icon-btn" aria-label="Settings" title="Settings" @click="emit('open-settings')">

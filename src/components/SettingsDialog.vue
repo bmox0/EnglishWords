@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {ref, watch} from "vue"
 
+import {useTheme} from "../composables/useTheme"
 import {useStudy} from "../store/study"
 
 import type {FormsFor} from "../domain/cards"
@@ -9,6 +10,7 @@ import type {AnswerMode} from "../domain/exercise"
 const open = defineModel<boolean>("open", {required: true})
 
 const study = useStudy()
+const {isDark, setTheme} = useTheme()
 const dialog = ref<HTMLDialogElement | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const status = ref("")
@@ -73,6 +75,12 @@ function reset() {
         <span>New cards per day</span>
         <input type="number" min="0" max="500" inputmode="numeric" :value="study.state.settings.newPerDay" @change="onNewPerDay" />
       </label>
+
+      <fieldset class="setting">
+        <legend>Theme</legend>
+        <label><input type="radio" name="theme" :checked="!isDark" @change="setTheme(false)" /> Light</label>
+        <label><input type="radio" name="theme" :checked="isDark" @change="setTheme(true)" /> Dark</label>
+      </fieldset>
 
       <fieldset class="setting">
         <legend>Answers</legend>
